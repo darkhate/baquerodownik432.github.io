@@ -402,12 +402,12 @@
             <div class="sidebar">
                 <div class="input-section">
                     <div class="section-title">初始論述</div>
-                    <textarea id="initialText" placeholder="輸入對方說的話...&#10;例如：媽媽說不讀書等於沒出息" disabled></textarea>
+                    <textarea id="initialText" placeholder="輸入對方說的話...&#10;例如：媽媽說不讀書等於沒出息"></textarea>
                 </div>
                 
                 <div class="input-section">
                     <div class="section-title">練習模式</div>
-                    <select id="modeSelect" style="width: 100%; padding: 8px; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 13px;" disabled>
+                    <select id="modeSelect" style="width: 100%; padding: 8px; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 13px;">
                         <option value="single">選擇特定框架</option>
                         <option value="random">隨機一個框架</option>
                         <option value="fusion">融合所有框架</option>
@@ -436,8 +436,8 @@
                 </div>
                 
                 <div class="input-footer">
-                    <textarea id="userInput" placeholder="輸入你的回應..." disabled></textarea>
-                    <button class="send-btn" id="sendBtn" disabled onclick="sendMessage()">發送</button>
+                    <textarea id="userInput" placeholder="輸入你的回應..."></textarea>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">發送</button>
                 </div>
             </div>
         </div>
@@ -468,33 +468,19 @@
             document.getElementById('sendBtn').disabled = false;
         }
 
-        // API Key 管理
-        function saveApiKey() {
-            updateApiStatus();
-            enableApp();
-        }
-            localStorage.setItem('geminiApiKey', key);
-            apiKey = key;
-            updateApiStatus();
-            
-            // 保存後啟用輸入框
-            document.getElementById('initialText').disabled = false;
-            document.getElementById('modeSelect').disabled = false;
-            document.getElementById('apiKey').value = '';
-            document.getElementById('apiKey').placeholder = '✓ API Key 已保存';
-            document.getElementById('clearBtn').style.display = 'block';
-        }
+        // Cloudflare Worker 已安全管理 Gemini API Key
 
-        function clearApiKey() {
-            alert('API Key 已由 Cloudflare Worker 安全管理');
-        }
+function saveApiKey() {
+    enableApp();
+}
 
-        function updateApiStatus() {
-            const status = document.getElementById('apiStatus');
-            enableApp(); else {
-                status.textContent = '等待 Worker';
-                status.style.color = '#EF4444';
-            }
+function clearApiKey() {
+    alert("API Key 已由 Cloudflare Worker 安全管理");
+}
+
+function updateApiStatus() {
+    enableApp();
+}
         }
 
         enableApp();
