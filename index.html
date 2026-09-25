@@ -800,6 +800,10 @@ ${frameworksList}
             };
             return text.replace(/[&<>"']/g, m => map[m]);
         }
-    </script>
+    
+        window.addEventListener('load', function(){
+            enableApp();
+        });
+        </script>
 </body>
 </html>
