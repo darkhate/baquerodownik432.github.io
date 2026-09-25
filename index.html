@@ -681,7 +681,7 @@ ${frameworksList}
                 const data = await response.json();
                 console.log('API 成功回應');
                 
-                const result = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                const result = data.text || '';
                 if (!result) {
                     throw new Error('回應中沒有找到文本內容');
                 }
