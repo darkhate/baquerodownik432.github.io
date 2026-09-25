@@ -1,854 +1,127 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>框架練習機器人 - Gemini AI 版</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        :root {
-            --primary: #3B82F6;
-            --danger: #EF4444;
-            --warning: #F59E0B;
-            --success: #10B981;
-            --info: #06B6D4;
-            --dark: #1F2937;
-            --light: #F9FAFB;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: var(--dark);
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
-            height: 90vh;
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, var(--primary) 0%, #667eea 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 4px;
-        }
-        
-        .header p {
-            opacity: 0.9;
-            font-size: 13px;
-        }
-        
-        .config-bar {
-            background: #F3F4F6;
-            border-bottom: 1px solid #E5E7EB;
-            padding: 12px 20px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        
-        .config-bar input {
-            padding: 8px 12px;
-            border: 1px solid #D1D5DB;
-            border-radius: 6px;
-            font-size: 13px;
-        }
-        
-        .config-bar button {
-            padding: 8px 16px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-        }
-        
-        .config-bar button:hover {
-            background: #2563EB;
-        }
-        
-        .main {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 0;
-            flex: 1;
-            overflow: hidden;
-        }
-        
-        .sidebar {
-            background: #F9FAFB;
-            border-right: 1px solid #E5E7EB;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .section-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--dark);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .framework-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        
-        .framework-btn {
-            padding: 10px;
-            border: 2px solid;
-            background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 700;
-            transition: all 0.3s;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-        }
-        
-        .framework-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        .framework-btn.active {
-            color: white;
-        }
-        
-        .framework-btn[data-framework="collapse"] { border-color: var(--danger); color: var(--danger); }
-        .framework-btn[data-framework="collapse"].active { background: var(--danger); }
-        
-        .framework-btn[data-framework="identify"] { border-color: #8B5CF6; color: #8B5CF6; }
-        .framework-btn[data-framework="identify"].active { background: #8B5CF6; }
-        
-        .framework-btn[data-framework="confirm"] { border-color: var(--warning); color: var(--warning); }
-        .framework-btn[data-framework="confirm"].active { background: var(--warning); }
-        
-        .framework-btn[data-framework="compress"] { border-color: var(--success); color: var(--success); }
-        .framework-btn[data-framework="compress"].active { background: var(--success); }
-        
-        .framework-btn[data-framework="segment"] { border-color: var(--info); color: var(--info); }
-        .framework-btn[data-framework="segment"].active { background: var(--info); }
-        
-        .framework-btn[data-framework="deconstruct"] { border-color: #D946EF; color: #D946EF; }
-        .framework-btn[data-framework="deconstruct"].active { background: #D946EF; }
-        
-        .framework-btn[data-framework="architecture"] { border-color: #EC4899; color: #EC4899; }
-        .framework-btn[data-framework="architecture"].active { background: #EC4899; }
-        
-        .framework-btn[data-framework="reconstruct"] { border-color: #F43F5E; color: #F43F5E; }
-        .framework-btn[data-framework="reconstruct"].active { background: #F43F5E; }
-        
-        .framework-btn[data-framework="implant"] { border-color: #65A30D; color: #65A30D; }
-        .framework-btn[data-framework="implant"].active { background: #65A30D; }
-        
-        .input-section textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #E5E7EB;
-            border-radius: 6px;
-            font-family: inherit;
-            font-size: 13px;
-            resize: vertical;
-            min-height: 80px;
-        }
-        
-        .input-section textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        .chat-panel {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
-        .chat-box {
-            flex: 1;
-            background: #F9FAFB;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .message {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            animation: slideIn 0.3s ease-out;
-        }
-        
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .user-msg {
-            align-self: flex-end;
-            background: var(--primary);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 12px;
-            max-width: 75%;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        
-        .bot-label {
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            color: white;
-            width: fit-content;
-        }
-        
-        .bot-msg {
-            align-self: flex-start;
-            background: white;
-            border-left: 4px solid #E5E7EB;
-            padding: 12px 16px;
-            border-radius: 8px;
-            max-width: 75%;
-            font-size: 14px;
-            line-height: 1.7;
-        }
-        
-        .bot-msg.collapse { border-left-color: var(--danger); }
-        .bot-msg.identify { border-left-color: #8B5CF6; }
-        .bot-msg.confirm { border-left-color: var(--warning); }
-        .bot-msg.compress { border-left-color: var(--success); }
-        .bot-msg.segment { border-left-color: var(--info); }
-        .bot-msg.deconstruct { border-left-color: #D946EF; }
-        .bot-msg.architecture { border-left-color: #EC4899; }
-        .bot-msg.reconstruct { border-left-color: #F43F5E; }
-        .bot-msg.implant { border-left-color: #65A30D; }
-        .bot-msg.info { border-left-color: var(--primary); }
-        
-        .loading {
-             animation: fadePulse 1.2s infinite ease-in-out;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #6B7280;
-            font-size: 13px;
-        }
-        
-        .spinner {
-            border: 2px solid #E5E7EB;
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            animation: spin 0.8s linear infinite;
-        }
-        
-        @keyframes fadePulse {
-             0%,100% { opacity: .45; }
-             50% { opacity: 1; }
-         }
-
-         @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .error {
-            background: #FEE2E2;
-            color: #991B1B;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 13px;
-        }
-        
-        .input-footer {
-            background: white;
-            border-top: 1px solid #E5E7EB;
-            padding: 15px 20px;
-            display: flex;
-            gap: 10px;
-        }
-        
-        .input-footer textarea {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #E5E7EB;
-            border-radius: 6px;
-            font-family: inherit;
-            font-size: 14px;
-            min-height: 50px;
-            max-height: 120px;
-            resize: vertical;
-        }
-        
-        .input-footer textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        
-        .send-btn {
-            padding: 12px 20px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 14px;
-            transition: all 0.3s;
-            align-self: flex-end;
-        }
-        
-        .send-btn:hover:not(:disabled) {
-            background: #2563EB;
-            transform: translateY(-2px);
-        }
-        
-        .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .empty-state {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #9CA3AF;
-            text-align: center;
-            font-size: 14px;
-        }
-        
-        .copy-btn {
-            padding: 6px 10px;
-            background: #F3F4F6;
-            border: 1px solid #D1D5DB;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 11px;
-            margin-top: 6px;
-            transition: all 0.2s;
-        }
-        
-        .copy-btn:hover {
-            background: #E5E7EB;
-        }
-        
-        .copy-btn.copied {
-            background: var(--success);
-            color: white;
-            border-color: var(--success);
-        }
-        
-        @media (max-width: 900px) {
-            .main {
-                grid-template-columns: 1fr;
-            }
-            
-            .sidebar {
-                display: none;
-            }
-            
-            .user-msg, .bot-msg {
-                max-width: 90%;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>框架練習機器人 - Gemini AI</title>
+<style>
+*{box-sizing:border-box;font-family:"Microsoft JhengHei",Arial}
+body{margin:0;background:#eef2ff}.header{background:#467df5;color:white;text-align:center;padding:25px;font-size:28px;font-weight:bold}
+.status{padding:12px;color:#07945b;background:white}.app{display:flex;height:calc(100vh - 120px);background:white}
+.left{width:340px;padding:15px;border-right:1px solid #ddd;overflow:auto}.right{flex:1;display:flex;flex-direction:column}
+textarea,select{width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;font-size:16px}
+.frameworks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.fbtn{height:65px;background:white;cursor:pointer}
+.chat{flex:1;overflow:auto;padding:20px;background:#fafafa}.msg{padding:12px;border-radius:12px;margin:10px;max-width:80%}.user{background:#4285f4;color:white;margin-left:auto}.ai{background:#eee}
+.bottom{display:flex;gap:10px;padding:15px}.send{width:100px;background:#4285f4;color:white;border:0;border-radius:8px;cursor:pointer}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🤖 框架練習機器人 - Gemini AI</h1>
-            <p>用9個框架進行真實對話練習</p>
-        </div>
-        
-        <div class="config-bar">
-            <input type="password" id="apiKey" placeholder="貼上你的 Gemini API Key" style="flex: 1;">
-            <button onclick="saveApiKey()">保存 API Key</button>
-            <span id="apiStatus" style="font-size: 12px; color: #6B7280;"></span>
-            <button onclick="clearApiKey()" style="background: #EF4444;" id="clearBtn" style="display:none;">清除</button>
-        </div>
-        
-        <div class="main">
-            <div class="sidebar">
-                <div class="input-section">
-                    <div class="section-title">初始論述</div>
-                    <textarea id="initialText" placeholder="輸入對方說的話...&#10;例如：媽媽說不讀書等於沒出息" disabled></textarea>
-                </div>
-                
-                <div class="input-section">
-                    <div class="section-title">練習模式</div>
-                    <select id="modeSelect" style="width: 100%; padding: 8px; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 13px;" disabled>
-                        <option value="single">單個框架（點擊指定框架）</option>
-                        <option value="random">隨機一個框架（自動選擇）</option>
-                        <option value="fusion">融合所有框架（綜合運用）</option>
-                    </select>
-                </div>
-                
-                <div class="input-section">
-                    <div class="section-title">框架選擇</div>
-                    <div class="framework-grid">
-                        <button class="framework-btn" data-framework="collapse" title="⚔️ 崩解 - 直接指出邏輯漏洞">⚔️<br>崩解</button>
-                        <button class="framework-btn" data-framework="identify" title="🔍 框架識別 - 挖掘隱合假設">🔍<br>識別</button>
-                        <button class="framework-btn" data-framework="confirm" title="✓ 框架確認 - 確認理解">✓<br>確認</button>
-                        <button class="framework-btn" data-framework="compress" title="💪 壓縮 - 最有力反駁">💪<br>壓縮</button>
-                        <button class="framework-btn" data-framework="segment" title="📊 分割 - 分層分析">📊<br>分割</button>
-                        <button class="framework-btn" data-framework="deconstruct" title="🔨 解構 - 分析情緒">🔨<br>解構</button>
-                        <button class="framework-btn" data-framework="architecture" title="🏗️ 架構 - 設計框架">🏗️<br>架構</button>
-                        <button class="framework-btn" data-framework="reconstruct" title="🔄 重構 - 新回應邏輯">🔄<br>重構</button>
-                        <button class="framework-btn" data-framework="implant" title="🌱 植入 - 改變認知">🌱<br>植入</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="chat-panel">
-                <div class="chat-box" id="chatBox">
-                    <div class="empty-state">選擇框架並輸入論述開始對話</div>
-                </div>
-                
-                <div class="input-footer">
-                    <textarea id="userInput" placeholder="輸入你的回應..." disabled></textarea>
-                    <button class="send-btn" id="sendBtn" disabled onclick="sendMessage()">發送</button>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="header">🤖 框架練習機器人 - Gemini AI</div>
+<div class="status">✓ 已連接安全 AI Gateway（Cloudflare Worker）</div>
+<div class="app">
+<div class="left">
+<h3>初始論述</h3>
+<textarea id="topic" placeholder="輸入對方說的話"></textarea>
+<h3>練習模式</h3>
+<select id="mode">
+<option value="single">單個框架</option>
+<option value="random">隨機一個框架</option>
+<option value="fusion">融合所有框架</option>
+</select>
+<h3>框架選擇</h3>
+<div class="frameworks" id="buttons"></div>
+</div>
+<div class="right">
+<div class="chat" id="chat">選擇框架並輸入回應開始對話</div>
+<div class="bottom">
+<textarea id="input" placeholder="輸入你的回應"></textarea>
+<button class="send" onclick="send()">發送</button>
+</div>
+</div>
+</div>
+<script>
+const WORKER="https://gemini-framework.baquerodownik432.workers.dev/api/chat";
+const FRAMEWORKS={
+"崩解":"拆解對方假設",
+"識別":"找出核心問題",
+"確認":"確認需求與事實",
+"壓縮":"濃縮重點",
+"分割":"拆分問題",
+"解構":"分析結構",
+"架構":"重新組織",
+"重構":"建立新觀點",
+"植入":"加入新思考"
+};
+let current=null;
+let history=[];
 
-    <script>
-        const FRAMEWORKS = {
-            collapse: { emoji: '⚔️', name: '崩解', description: '直接指出論述的邏輯漏洞' },
-            identify: { emoji: '🔍', name: '框架識別', description: '挖掘隱含假設' },
-            confirm: { emoji: '✓', name: '框架確認', description: '確認理解是否正確' },
-            compress: { emoji: '💪', name: '壓縮', description: '用最有力的論點反駁' },
-            segment: { emoji: '📊', name: '分割', description: '分層分析' },
-            deconstruct: { emoji: '🔨', name: '解構', description: '分析情緒與重點' },
-            architecture: { emoji: '🏗️', name: '架構', description: '設計思考框架' },
-            reconstruct: { emoji: '🔄', name: '重構', description: '建立新回應邏輯' },
-            implant: { emoji: '🌱', name: '植入', description: '長期改變認知' }
-        };
+const btn=document.getElementById("buttons");
+Object.keys(FRAMEWORKS).forEach(k=>{
+ let b=document.createElement("button");
+ b.className="fbtn";
+ b.innerText=k;
+ b.onclick=()=>{current=k;};
+ btn.appendChild(b);
+});
 
-        let apiKey = localStorage.getItem('geminiApiKey') || '';
-        let conversationHistory = [];
-        let currentFramework = null;
-        let isLoading = false;
+function add(text,type){
+ let d=document.createElement("div");
+ d.className="msg "+type;
+ d.innerText=text;
+ document.getElementById("chat").appendChild(d);
+ document.getElementById("chat").scrollTop=99999;
+}
 
-        // API Key 管理
-        function saveApiKey() {
-            const key = document.getElementById('apiKey').value.trim();
-            if (!key) {
-                alert('請輸入 API Key');
-                return;
-            }
-            localStorage.setItem('geminiApiKey', key);
-            apiKey = key;
-            updateApiStatus();
-            
-            // 保存後啟用輸入框
-            document.getElementById('initialText').disabled = false;
-            document.getElementById('modeSelect').disabled = false;
-            document.getElementById('apiKey').value = '';
-            document.getElementById('apiKey').placeholder = '✓ API Key 已保存';
-            document.getElementById('clearBtn').style.display = 'block';
-        }
+async function send(){
+ let input=document.getElementById("input");
+ let text=input.value.trim();
+ if(!text)return;
 
-        function clearApiKey() {
-            localStorage.removeItem('geminiApiKey');
-            apiKey = '';
-            document.getElementById('apiKey').value = '';
-            document.getElementById('apiKey').placeholder = '貼上你的 Gemini API Key';
-            document.getElementById('initialText').disabled = true;
-            document.getElementById('modeSelect').disabled = true;
-            document.getElementById('clearBtn').style.display = 'none';
-            updateApiStatus();
-        }
+ let mode=document.getElementById("mode").value;
 
-        function updateApiStatus() {
-            const status = document.getElementById('apiStatus');
-            if (apiKey) {
-                status.textContent = '✓ API Key 已保存';
-                status.style.color = '#10B981';
-            } else {
-                status.textContent = '需要 API Key';
-                status.style.color = '#EF4444';
-            }
-        }
+ if(mode==="random"){
+   let keys=Object.keys(FRAMEWORKS);
+   current=keys[Math.floor(Math.random()*keys.length)];
+ }
+ if(mode==="fusion") current="融合所有框架";
 
-        if (apiKey) {
-            document.getElementById('initialText').disabled = false;
-            document.getElementById('modeSelect').disabled = false;
-            document.getElementById('apiKey').placeholder = '✓ API Key 已保存';
-            document.getElementById('clearBtn').style.display = 'block';
-            updateApiStatus();
-        }
+ if(!current){
+   alert("請先選擇框架");
+   return;
+ }
 
-        // 框架按鈕事件
-        document.querySelectorAll('.framework-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const text = document.getElementById('initialText').value.trim();
-                const mode = document.getElementById('modeSelect').value;
-                
-                if (!text) {
-                    alert('請先輸入論述');
-                    return;
-                }
-                
-                if (!apiKey) {
-                    alert('請先保存 API Key');
-                    return;
-                }
+ add(text,"user");
+ input.value="";
 
-                // 根據模式選擇框架
-                let selectedFramework = null;
-                if (mode === 'single') {
-                    selectedFramework = this.dataset.framework;
-                    currentFramework = selectedFramework;
-                } else if (mode === 'random') {
-                    const frameworks = Object.keys(FRAMEWORKS);
-                    selectedFramework = frameworks[Math.floor(Math.random() * frameworks.length)];
-                    currentFramework = selectedFramework;
-                    const frameworkName = FRAMEWORKS[selectedFramework].name;
-                    console.log(`隨機選中框架: ${frameworkName}`);
-                } else if (mode === 'fusion') {
-                    currentFramework = 'fusion';
-                    selectedFramework = 'fusion';
-                    console.log('使用融合模式');
-                }
-                
-                // 更新按鈕狀態
-                document.querySelectorAll('.framework-btn').forEach(b => b.classList.remove('active'));
-                if (mode === 'single') {
-                    this.classList.add('active');
-                }
+ let prompt=`你是一個溝通訓練AI。
+目前使用框架:${current}
+對方論述:${document.getElementById("topic").value}
+使用者回應:${text}
+請依照框架提供高品質回覆與分析。`;
 
-                // 清空對話歷史開始新對話
-                conversationHistory = [];
-                document.getElementById('userInput').value = '';
-                document.getElementById('userInput').disabled = false;
-                document.getElementById('sendBtn').disabled = false;
-                
-                // 添加初始消息
-                conversationHistory.push({
-                    role: 'user',
-                    content: text
-                });
+ let loading=document.createElement("div");
+ loading.className="msg ai";
+ loading.innerText="AI思考中...";
+ document.getElementById("chat").appendChild(loading);
 
-                // 顯示用戶消息
-                displayUserMessage(text);
+ try{
+  let res=await fetch(WORKER,{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({
+    contents:[{role:"user",parts:[{text:prompt}]}]
+   })
+  });
 
-                // 請求 AI 回應
-                generateResponse();
-            });
-        });
+  let data=await res.json();
+  loading.remove();
+  add(data.text||"AI沒有回覆","ai");
 
-        async function generateResponse() {
-            if (!currentFramework || !apiKey || isLoading) return;
-
-            isLoading = true;
-            const sendBtn = document.getElementById('sendBtn');
-            sendBtn.disabled = true;
-
-            // 顯示加載狀態
-            const chatBox = document.getElementById('chatBox');
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'loading';
-            loadingDiv.innerHTML = '<div class="spinner"></div> 機器人思考中...';
-            loadingDiv.id = 'loadingIndicator';
-            chatBox.appendChild(loadingDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            try {
-                console.log('開始生成回應...當前框架:', currentFramework);
-                const response = await callGeminiAPI();
-                
-                const loadingEl = document.getElementById('loadingIndicator');
-                if (loadingEl) {
-                    chatBox.removeChild(loadingEl);
-                }
-
-                if (response) {
-                    console.log('成功取得回應');
-                    conversationHistory.push({
-                        role: 'assistant',
-                        content: response
-                    });
-
-                    displayBotMessage(response);
-                    document.getElementById('userInput').disabled = false;
-                    sendBtn.disabled = false;
-                } else {
-                    const loadingEl = document.getElementById('loadingIndicator');
-                    if (loadingEl) {
-                        chatBox.removeChild(loadingEl);
-                    }
-                    displayError('無法取得回應（空回應）');
-                    sendBtn.disabled = false;
-                }
-            } catch (error) {
-                console.error('API 調用失敗:', error);
-                const loadingEl = document.getElementById('loadingIndicator');
-                if (loadingEl && loadingEl.parentNode) {
-                    chatBox.removeChild(loadingEl);
-                }
-                displayError(`錯誤：${error.message}`);
-                sendBtn.disabled = false;
-            } finally {
-                isLoading = false;
-            }
-        }
-
-        async function callGeminiAPI() {
-            let systemPrompt = '';
-            
-            if (currentFramework === 'fusion') {
-                const frameworks = Object.values(FRAMEWORKS);
-                const frameworksList = frameworks.map(f => `• ${f.emoji} ${f.name}：${f.description}`).join('\n');
-                
-                systemPrompt = `你是一個溝通專家，擅長用多種框架進行對話。
-
-【可用框架】
-${frameworksList}
-
-在回應時，請綜合運用這些框架，根據對話內容靈活選擇最適合的方法：
-1. 給出直接可說出口的完整回應句子
-2. 簡明扼要，2-3句話
-3. 用口語化的方式，像真實對話
-4. 可以混合使用多個框架（例如先確認理解，再壓縮論點）
-
-用戶的論述會在下面提供。`;
-            } else {
-                const frameworkInfo = FRAMEWORKS[currentFramework];
-                
-                systemPrompt = `你是一個溝通專家，擅長用「${frameworkInfo.name}」框架進行對話。
-
-【${frameworkInfo.name}】的定義是：${frameworkInfo.description}
-
-根據這個框架，分析用戶的論述，給出:
-1. 直接可說出口的完整回應句子
-2. 簡明扼要，2-3句話
-3. 用口語化的方式，像真實對話
-
-用戶的論述會在下面提供。`;
-            }
-
-            const messages = conversationHistory.map(msg => ({
-                role: msg.role,
-                parts: [{ text: msg.content }]
-            }));
-
-            const requestBody = {
-                contents: messages,
-                systemInstruction: {
-                    parts: [{ text: systemPrompt }]
-                },
-                generationConfig: {
-                    temperature: 0.7,
-                    topK: 40,
-                    topP: 0.95,
-                    maxOutputTokens: 500,
-                }
-            };
-
-            console.log('API 請求:', {
-                框架: currentFramework,
-                消息數: messages.length,
-                URL: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=[隱藏]`
-            });
-
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 60000);
-
-                const response = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-                    {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(requestBody),
-                        signal: controller.signal
-                    }
-                );
-
-                clearTimeout(timeoutId);
-
-                console.log('API 回應狀態:', response.status);
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error('API 錯誤詳情:', errorData);
-                    
-                    const errorMessage = errorData.error?.message || '未知錯誤';
-                    throw new Error(`API 錯誤 (${response.status}): ${errorMessage}`);
-                }
-
-                const data = await response.json();
-                console.log('API 成功回應');
-                
-                const result = data.text || '';
-                if (!result) {
-                    throw new Error('AI沒有回覆內容');
-                }
-                
-                return result;
-            } catch (error) {
-                console.error('API 調用詳細錯誤:', error);
-                if (error.name === 'AbortError') {
-                    throw new Error('AI 回應逾時，請稍後再試');
-                }
-                if (error.message.includes('Failed to fetch')) {
-                    throw new Error('連線失敗，請確認 API Key、網路或 Gemini API 權限');
-                }
-                throw error;
-            }
-        }
-
-        function displayUserMessage(text) {
-            const chatBox = document.getElementById('chatBox');
-            if (chatBox.querySelector('.empty-state')) {
-                chatBox.innerHTML = '';
-            }
-
-            const div = document.createElement('div');
-            div.className = 'message';
-            div.innerHTML = `<div class="user-msg">${escapeHtml(text)}</div>`;
-            chatBox.appendChild(div);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        function displayBotMessage(text) {
-            const chatBox = document.getElementById('chatBox');
-            const div = document.createElement('div');
-            div.className = 'message';
-            
-            let config = null;
-            let frameworkClass = 'info';
-            
-            if (currentFramework === 'fusion') {
-                config = { emoji: '🔄', name: '智能融合' };
-                frameworkClass = 'info';
-            } else {
-                config = FRAMEWORKS[currentFramework];
-                frameworkClass = currentFramework;
-            }
-            
-            if (config) {
-                div.innerHTML = `
-                    <div class="bot-label">${config.emoji} ${config.name}</div>
-                    <div class="bot-msg ${frameworkClass}">${escapeHtml(text)}</div>
-                    <button class="copy-btn" onclick="copyText(this)">📋 複製</button>
-                `;
-            } else {
-                // Fallback
-                div.innerHTML = `
-                    <div class="bot-msg info">${escapeHtml(text)}</div>
-                    <button class="copy-btn" onclick="copyText(this)">📋 複製</button>
-                `;
-            }
-            
-            chatBox.appendChild(div);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        function displayError(message) {
-            const chatBox = document.getElementById('chatBox');
-            const div = document.createElement('div');
-            div.className = 'error';
-            div.textContent = message;
-            chatBox.appendChild(div);
-        }
-
-        function copyText(btn) {
-            const text = btn.previousElementSibling.innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                btn.textContent = '✓ 已複製';
-                btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.textContent = '📋 複製';
-                    btn.classList.remove('copied');
-                }, 2000);
-            });
-        }
-
-        function sendMessage() {
-            const input = document.getElementById('userInput');
-            const text = input.value.trim();
-            const sendBtn = document.getElementById('sendBtn');
-
-            if (!text || isLoading) return;
-            
-            if (!currentFramework) {
-                displayError('請先選擇框架並輸入初始論述');
-                return;
-            }
-
-            displayUserMessage(text);
-            
-            conversationHistory.push({
-                role: 'user',
-                content: text
-            });
-
-            input.value = '';
-            sendBtn.disabled = true;
-            generateResponse();
-        }
-
-        document.getElementById('userInput').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, m => map[m]);
-        }
-    </script>
+ }catch(e){
+  loading.remove();
+  add("錯誤:"+e.message,"ai");
+ }
+}
+</script>
 </body>
 </html>
