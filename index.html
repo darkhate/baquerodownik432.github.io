@@ -1,68 +1,53 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>框架練習機器人 - Gemini AI V2.3.5 FINAL</title>
+<title>框架練習機器人 Gemini AI</title>
 <style>
-*{box-sizing:border-box;font-family:"Microsoft JhengHei",Arial}
-body{margin:0;background:#eef2ff}
-.header{background:#467df5;color:#fff;text-align:center;padding:24px;font-size:30px;font-weight:bold}
-.status{padding:12px;background:#fff;color:#07945b}
-.app{display:flex;height:calc(100vh - 120px);background:#fff}
-.left{width:420px;padding:18px;border-right:1px solid #ddd;overflow:auto}
-.right{flex:1;display:flex;flex-direction:column}
-textarea,select{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;font-size:16px}
-.frameworks{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.fbtn{height:70px;background:#fff;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;border:2px solid}
-.fbtn:nth-child(1){color:#f33;border-color:#f33}.fbtn:nth-child(2){color:#7c3aed;border-color:#7c3aed}
-.fbtn:nth-child(3){color:#f59e0b;border-color:#f59e0b}.fbtn:nth-child(4){color:#10b981;border-color:#10b981}
-.fbtn:nth-child(5){color:#06b6d4;border-color:#06b6d4}.fbtn:nth-child(6){color:#d946ef;border-color:#d946ef}
-.fbtn:nth-child(7){color:#ec4899;border-color:#ec4899}.fbtn:nth-child(8){color:#ef4444;border-color:#ef4444}
-.fbtn:nth-child(9){color:#65a30d;border-color:#65a30d}
-.fbtn.active{background:#467df5;color:white}
-.selected{margin-top:12px;background:#f1f1f1;padding:12px;border-radius:8px}
-.chat{flex:1;padding:20px;overflow:auto;background:#fafafa}
-.msg{padding:14px;border-radius:12px;margin:10px;white-space:pre-wrap}
-.user{background:#4285f4;color:white;margin-left:auto;max-width:80%}
-.ai{background:#eee;max-width:85%}
-.bottom{display:flex;gap:10px;padding:15px}
-.send{width:130px;background:#467df5;color:#fff;border:0;border-radius:10px;font-size:18px;cursor:pointer}
+body{font-family:Arial,"Microsoft JhengHei";margin:0}
+.header{background:#4285f4;color:#fff;padding:20px;text-align:center;font-size:28px}
+.app{display:flex;height:calc(100vh - 80px)}
+.left{width:400px;padding:20px;overflow:auto;border-right:1px solid #ddd}
+.right{flex:1;padding:20px}
+textarea,select{width:100%;padding:12px;font-size:16px}
+button{width:45%;height:70px;margin:5px;border-radius:12px;background:#fff;font-size:18px;font-weight:bold}
+.start{background:#4285f4;color:white}
+.msg{padding:15px;margin:10px;border-radius:12px}
+.user{background:#4285f4;color:white}
+.ai{background:#eee}
+.info{padding:12px;background:#f5f5f5;margin-top:10px}
 </style>
 </head>
 <body>
 <div class="header">🤖 框架練習機器人 - Gemini AI</div>
-<div class="status">✓ 已連接安全 AI Gateway（Cloudflare Worker）</div>
 
 <div class="app">
 <div class="left">
 <h3>初始論述</h3>
-<textarea id="topic" placeholder="輸入對方說的話"></textarea>
+<textarea id="input" rows="5"></textarea>
 
 <h3>練習模式</h3>
-<select id="mode" onchange="updateMode()">
-<option value="single">單個框架</option>
+<select id="mode" onchange="changeMode()">
 <option value="random">隨機一個框架</option>
-<option value="fusion">融合所有框架</option>
+<option value="all">融合所有框架</option>
+<option value="manual">手動選擇框架</option>
 </select>
 
 <h3>框架選擇</h3>
-<div class="frameworks" id="buttons"></div>
-<div class="selected" id="selected">單一框架：請選擇框架</div>
+<div id="buttons"></div>
+
+<div class="info" id="selected">尚未選擇框架</div>
 </div>
 
 <div class="right">
-<div class="chat" id="chat">請輸入初始論述並選擇框架開始分析</div>
-<div class="bottom">
-<textarea id="input" placeholder="輸入你的回應（可留空）"></textarea>
-<button class="send" onclick="send()">開始分析</button>
-</div>
+<div id="chat"></div>
+<textarea id="reply" rows="3" placeholder="輸入你的回應"></textarea>
+<br>
+<button class="start" onclick="analyze()">開始分析</button>
 </div>
 </div>
 
 <script>
-console.log("V2.3.5 FINAL Loaded");
-
 const WORKER="https://gemini-framework.baquerodwornik432.workers.dev/";
 
 const FRAMEWORKS={
@@ -81,107 +66,75 @@ let current=null;
 
 Object.keys(FRAMEWORKS).forEach(k=>{
  let b=document.createElement("button");
- b.className="fbtn";
  b.innerText=k;
  b.onclick=()=>{
-   current=k;
-   document.querySelectorAll(".fbtn").forEach(x=>x.classList.remove("active"));
-   b.classList.add("active");
-   document.getElementById("selected").innerText="目前框架："+k;
+  current=k;
+  document.getElementById("selected").innerText="目前框架："+k;
  };
  document.getElementById("buttons").appendChild(b);
 });
 
-function updateMode(){
- let mode=document.getElementById("mode").value;
-
- if(mode==="random"){
-   document.getElementById("selected").innerText="隨機模式：分析時自動選擇框架";
+function changeMode(){
+ let m=document.getElementById("mode").value;
+ if(m==="random"){
+  let a=Object.keys(FRAMEWORKS);
+  current=a[Math.floor(Math.random()*a.length)];
+  document.getElementById("selected").innerText="隨機選擇框架："+current;
  }
- else if(mode==="fusion"){
-   document.getElementById("selected").innerText="融合模式：使用全部9個框架";
+ else if(m==="all"){
+  current="全部9個框架";
+  document.getElementById("selected").innerText="使用框架：全部9個框架";
  }
  else{
-   document.getElementById("selected").innerText=current?"目前框架："+current:"單一框架：請選擇框架";
+  current=null;
+  document.getElementById("selected").innerText="尚未選擇框架";
  }
 }
 
-function add(text,type){
+function add(t,c){
  let d=document.createElement("div");
- d.className="msg "+type;
- d.innerText=text;
+ d.className="msg "+c;
+ d.innerText=t;
  document.getElementById("chat").appendChild(d);
 }
 
-async function send(){
+async function analyze(){
 
- let mode=document.getElementById("mode").value;
- let framework=current;
+let input=document.getElementById("input").value.trim();
 
- if(mode==="random"){
-   let keys=Object.keys(FRAMEWORKS);
-   framework=keys[Math.floor(Math.random()*keys.length)];
-   document.getElementById("selected").innerText="隨機選擇框架："+framework;
- }
+if(!input){alert("請輸入初始論述");return;}
+if(!current){alert("請選擇框架");return;}
 
- if(mode==="fusion"){
-   framework="全部9個框架";
-   document.getElementById("selected").innerText="融合模式：全部9個框架";
- }
+add("使用框架："+current,"user");
 
- if(mode==="single" && !framework){
-   alert("請選擇框架");
-   return;
- }
-
- let topic=document.getElementById("topic").value.trim();
- if(!topic){
-   alert("請輸入初始論述");
-   return;
- }
-
- let text=document.getElementById("input").value.trim() || "請分析此論述";
-
- add("使用框架："+framework,"user");
-
- let prompt=`你是溝通框架訓練AI。
-
+let prompt=`你是溝通框架訓練AI。
 初始論述：
-${topic}
-
-模式：
-${mode}
-
+${input}
 使用框架：
-${framework}
+${current}
+請分析此論述。`;
 
-使用者補充：
-${text}
+try{
 
-請依照框架分析：
-1. 核心問題
-2. 隱含假設
-3. 分析拆解
-4. 建議回應方式`;
+let res=await fetch(WORKER,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+contents:[{
+role:"user",
+parts:[{text:prompt}]
+}]
+})
+});
 
- try{
-   let res=await fetch(WORKER,{
-     method:"POST",
-     headers:{"Content-Type":"application/json"},
-     body:JSON.stringify({
-       contents:[{
-        role:"user",
-        parts:[{text:prompt}]
-       }]
-     })
-   });
+let data=await res.json();
 
-   let data=await res.json();
-   add(data.text || "AI沒有回覆","ai");
+add(data.text || data.error || "AI沒有回覆","ai");
 
- }catch(e){
-   add("錯誤："+e.message,"ai");
- }
+}catch(e){
+add("錯誤："+e.message,"ai");
+}
+
 }
 </script>
 </body>
