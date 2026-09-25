@@ -2,40 +2,35 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>框架練習機器人 - Gemini AI V2.3.4 FINAL</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>框架練習機器人 - Gemini AI V2.3.5 FINAL</title>
 <style>
 *{box-sizing:border-box;font-family:"Microsoft JhengHei",Arial}
 body{margin:0;background:#eef2ff}
-.header{background:#467df5;color:white;text-align:center;padding:24px;font-size:30px;font-weight:bold}
+.header{background:#467df5;color:#fff;text-align:center;padding:24px;font-size:30px;font-weight:bold}
 .status{padding:12px;background:#fff;color:#07945b}
-.app{display:flex;height:calc(100vh - 120px);background:white}
+.app{display:flex;height:calc(100vh - 120px);background:#fff}
 .left{width:420px;padding:18px;border-right:1px solid #ddd;overflow:auto}
 .right{flex:1;display:flex;flex-direction:column}
 textarea,select{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;font-size:16px}
 .frameworks{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.fbtn{height:70px;background:white;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;border:2px solid}
-.fbtn:nth-child(1){color:#f33;border-color:#f33}
-.fbtn:nth-child(2){color:#7c3aed;border-color:#7c3aed}
-.fbtn:nth-child(3){color:#f59e0b;border-color:#f59e0b}
-.fbtn:nth-child(4){color:#10b981;border-color:#10b981}
-.fbtn:nth-child(5){color:#06b6d4;border-color:#06b6d4}
-.fbtn:nth-child(6){color:#d946ef;border-color:#d946ef}
-.fbtn:nth-child(7){color:#ec4899;border-color:#ec4899}
-.fbtn:nth-child(8){color:#ef4444;border-color:#ef4444}
+.fbtn{height:70px;background:#fff;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;border:2px solid}
+.fbtn:nth-child(1){color:#f33;border-color:#f33}.fbtn:nth-child(2){color:#7c3aed;border-color:#7c3aed}
+.fbtn:nth-child(3){color:#f59e0b;border-color:#f59e0b}.fbtn:nth-child(4){color:#10b981;border-color:#10b981}
+.fbtn:nth-child(5){color:#06b6d4;border-color:#06b6d4}.fbtn:nth-child(6){color:#d946ef;border-color:#d946ef}
+.fbtn:nth-child(7){color:#ec4899;border-color:#ec4899}.fbtn:nth-child(8){color:#ef4444;border-color:#ef4444}
 .fbtn:nth-child(9){color:#65a30d;border-color:#65a30d}
 .fbtn.active{background:#467df5;color:white}
 .selected{margin-top:12px;background:#f1f1f1;padding:12px;border-radius:8px}
 .chat{flex:1;padding:20px;overflow:auto;background:#fafafa}
-.msg{padding:14px;border-radius:12px;margin:10px;max-width:85%;white-space:pre-wrap}
-.user{background:#4285f4;color:white;margin-left:auto}
-.ai{background:#eee}
+.msg{padding:14px;border-radius:12px;margin:10px;white-space:pre-wrap}
+.user{background:#4285f4;color:white;margin-left:auto;max-width:80%}
+.ai{background:#eee;max-width:85%}
 .bottom{display:flex;gap:10px;padding:15px}
-.send{width:130px;background:#467df5;color:white;border:0;border-radius:10px;font-size:18px}
+.send{width:130px;background:#467df5;color:#fff;border:0;border-radius:10px;font-size:18px;cursor:pointer}
 </style>
 </head>
 <body>
-
 <div class="header">🤖 框架練習機器人 - Gemini AI</div>
 <div class="status">✓ 已連接安全 AI Gateway（Cloudflare Worker）</div>
 
@@ -59,14 +54,14 @@ textarea,select{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px
 <div class="right">
 <div class="chat" id="chat">請輸入初始論述並選擇框架開始分析</div>
 <div class="bottom">
-<textarea id="input" placeholder="輸入你的回應"></textarea>
+<textarea id="input" placeholder="輸入你的回應（可留空）"></textarea>
 <button class="send" onclick="send()">開始分析</button>
 </div>
 </div>
 </div>
 
 <script>
-console.log("框架練習機器人 V2.3.4 FINAL Loaded");
+console.log("V2.3.5 FINAL Loaded");
 
 const WORKER="https://gemini-framework.baquerodownik432.workers.dev/api/chat";
 
@@ -89,24 +84,25 @@ Object.keys(FRAMEWORKS).forEach(k=>{
  b.className="fbtn";
  b.innerText=k;
  b.onclick=()=>{
-  current=k;
-  document.querySelectorAll(".fbtn").forEach(x=>x.classList.remove("active"));
-  b.classList.add("active");
-  document.getElementById("selected").innerText="目前框架："+k;
+   current=k;
+   document.querySelectorAll(".fbtn").forEach(x=>x.classList.remove("active"));
+   b.classList.add("active");
+   document.getElementById("selected").innerText="目前框架："+k;
  };
  document.getElementById("buttons").appendChild(b);
 });
 
 function updateMode(){
  let mode=document.getElementById("mode").value;
+
  if(mode==="random"){
-  document.getElementById("selected").innerText="隨機模式：送出時自動選擇框架";
+   document.getElementById("selected").innerText="隨機模式：分析時自動選擇框架";
  }
  else if(mode==="fusion"){
-  document.getElementById("selected").innerText="融合模式：使用全部9個框架";
+   document.getElementById("selected").innerText="融合模式：使用全部9個框架";
  }
  else{
-  document.getElementById("selected").innerText=current?"目前框架："+current:"單一框架：請選擇框架";
+   document.getElementById("selected").innerText=current?"目前框架："+current:"單一框架：請選擇框架";
  }
 }
 
@@ -118,67 +114,73 @@ function add(text,type){
 }
 
 async function send(){
- console.log("開始分析");
 
- let text=document.getElementById("input").value.trim();
  let mode=document.getElementById("mode").value;
-
- if(!text){
-  alert("請輸入回應");
-  return;
- }
-
  let framework=current;
 
  if(mode==="random"){
-  let keys=Object.keys(FRAMEWORKS);
-  framework=keys[Math.floor(Math.random()*keys.length)];
+   let keys=Object.keys(FRAMEWORKS);
+   framework=keys[Math.floor(Math.random()*keys.length)];
+   document.getElementById("selected").innerText="隨機選擇框架："+framework;
  }
 
  if(mode==="fusion"){
-  framework="全部9個框架";
+   framework="全部9個框架";
+   document.getElementById("selected").innerText="融合模式：全部9個框架";
  }
 
- if(mode==="single"&&!framework){
-  alert("請選擇框架");
-  return;
+ if(mode==="single" && !framework){
+   alert("請選擇框架");
+   return;
  }
 
- document.getElementById("selected").innerText="本次使用框架："+framework;
+ let topic=document.getElementById("topic").value.trim();
+ if(!topic){
+   alert("請輸入初始論述");
+   return;
+ }
 
- add(text,"user");
+ let text=document.getElementById("input").value.trim() || "請分析此論述";
 
- let prompt=`你是溝通訓練AI。
-模式:${mode}
-框架:${framework}
-初始論述:${document.getElementById("topic").value}
-使用者回應:${text}
-請依照框架提供分析與改善建議。`;
+ add("使用框架："+framework,"user");
 
- console.log("API Request",prompt);
+ let prompt=`你是溝通框架訓練AI。
+
+初始論述：
+${topic}
+
+模式：
+${mode}
+
+使用框架：
+${framework}
+
+使用者補充：
+${text}
+
+請依照框架分析：
+1. 核心問題
+2. 隱含假設
+3. 分析拆解
+4. 建議回應方式`;
 
  try{
-  let res=await fetch(WORKER,{
-   method:"POST",
-   headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({
-    contents:[{
-     role:"user",
-     parts:[{text:prompt}]
-    }]
-   })
-  });
+   let res=await fetch(WORKER,{
+     method:"POST",
+     headers:{"Content-Type":"application/json"},
+     body:JSON.stringify({
+       contents:[{
+        role:"user",
+        parts:[{text:prompt}]
+       }]
+     })
+   });
 
-  console.log("API Status",res.status);
-
-  let data=await res.json();
-  console.log("API Data",data);
-
-  add(data.text||"AI沒有回覆","ai");
+   let data=await res.json();
+   add(data.text || "AI沒有回覆","ai");
 
  }catch(e){
-  console.error(e);
-  add("錯誤："+e.message,"ai");
+   add("錯誤："+e.message,"ai");
  }
 }
 </script>
