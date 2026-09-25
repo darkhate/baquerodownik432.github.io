@@ -3,44 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>框架練習機器人 - Gemini AI V2.3 FINAL</title>
+<title>框架練習機器人 Gemini AI V2.3.2</title>
 <style>
 *{box-sizing:border-box;font-family:"Microsoft JhengHei",Arial}
 body{margin:0;background:#eef2ff}
-.header{background:#467df5;color:white;text-align:center;padding:25px;font-size:30px;font-weight:bold}
-.status{background:white;padding:12px;color:#008f5a}
-.container{display:flex;height:calc(100vh - 120px);background:white}
-.left{width:360px;padding:15px;border-right:1px solid #ddd;overflow:auto}
+.header{background:#467df5;color:white;text-align:center;padding:24px;font-size:30px;font-weight:bold}
+.status{background:white;padding:12px;color:#008f60}
+.app{display:flex;height:calc(100vh - 120px);background:white}
+.left{width:380px;padding:15px;border-right:1px solid #ddd;overflow:auto}
 .right{flex:1;display:flex;flex-direction:column}
-textarea,select{width:100%;padding:12px;border-radius:8px;border:1px solid #ccc}
+textarea,select{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;font-size:16px}
 .frameworks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.fbtn{height:60px;border-radius:8px;background:white;cursor:pointer}
+.fbtn{height:60px;background:white;border:1px solid #999;border-radius:8px;cursor:pointer}
 .fbtn.active{background:#467df5;color:white}
-.chat{flex:1;overflow:auto;padding:20px;background:#fafafa}
-.msg{padding:12px;margin:10px;border-radius:12px;white-space:pre-wrap}
+#selected{padding:10px;background:#f3f3f3;margin:10px 0;border-radius:8px}
+.chat{flex:1;padding:20px;overflow:auto;background:#fafafa}
+.msg{padding:12px;border-radius:12px;margin:10px;white-space:pre-wrap}
 .user{background:#4285f4;color:white;margin-left:auto}
 .ai{background:#eee}
-.bottom{padding:15px;display:flex;gap:10px}
-.send{background:#467df5;color:white;border:0;border-radius:8px;padding:15px 30px;cursor:pointer}
+.bottom{display:flex;gap:10px;padding:15px}
+.send{background:#467df5;color:white;border:0;border-radius:8px;padding:15px 30px}
 </style>
 </head>
 <body>
-<div class="header">🤖 框架練習機器人 - Gemini AI V2.3 FINAL</div>
+<div class="header">🤖 框架練習機器人 - Gemini AI V2.3.2 FINAL</div>
 <div class="status">✓ 已連接安全 AI Gateway（Cloudflare Worker）</div>
-<div class="container">
+
+<div class="app">
 <div class="left">
 <h3>初始論述</h3>
 <textarea id="topic" placeholder="輸入對方說的話"></textarea>
+
 <h3>練習模式</h3>
 <select id="mode">
 <option value="single">單一框架</option>
 <option value="random">隨機一個框架</option>
 <option value="fusion">融合所有框架</option>
 </select>
+
 <div id="selected">尚未選擇框架</div>
+
 <h3>框架選擇</h3>
 <div class="frameworks" id="buttons"></div>
 </div>
+
 <div class="right">
 <div class="chat" id="chat">請輸入初始論述並選擇框架開始分析</div>
 <div class="bottom">
@@ -49,8 +55,10 @@ textarea,select{width:100%;padding:12px;border-radius:8px;border:1px solid #ccc}
 </div>
 </div>
 </div>
+
 <script>
 const WORKER="https://gemini-framework.baquerodownik432.workers.dev/api/chat";
+
 const FRAMEWORKS={
 "崩解":"拆解對方假設",
 "識別":"找出核心問題",
@@ -62,27 +70,85 @@ const FRAMEWORKS={
 "重構":"建立新觀點",
 "植入":"加入新的思考"
 };
-let selected=null;
-Object.keys(FRAMEWORKS).forEach(k=>{
+
+let selectedFramework=null;
+
+Object.keys(FRAMEWORKS).forEach(name=>{
 let b=document.createElement("button");
-b.className="fbtn";b.innerText=k;
-b.onclick=()=>{selected=k;document.querySelectorAll(".fbtn").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById("selected").innerText="目前框架："+k};
+b.className="fbtn";
+b.innerText=name;
+b.onclick=()=>{
+selectedFramework=name;
+document.querySelectorAll(".fbtn").forEach(x=>x.classList.remove("active"));
+b.classList.add("active");
+document.getElementById("selected").innerText="目前框架："+name;
+};
 document.getElementById("buttons").appendChild(b);
 });
-function add(t,c){let d=document.createElement("div");d.className="msg "+c;d.innerText=t;document.getElementById("chat").appendChild(d)}
+
+function add(t,c){
+let d=document.createElement("div");
+d.className="msg "+c;
+d.innerText=t;
+document.getElementById("chat").appendChild(d);
+}
+
 async function send(){
-let topic=document.getElementById("topic").value.trim();
-if(!topic)return alert("請輸入初始論述");
-let mode=document.getElementById("mode").value;
-if(mode==="random"){let k=Object.keys(FRAMEWORKS);selected=k[Math.floor(Math.random()*k.length)]}
-if(mode==="fusion")selected="融合所有框架";
-if(!selected)return alert("請選擇框架");
-add("原始論述：\n"+topic,"user");
-let p=`使用框架：${selected}\n原始論述：${topic}\n請分析核心問題並提供建議回應。`;
+
+const topic=document.getElementById("topic").value.trim();
+const mode=document.getElementById("mode").value;
+
+if(!topic){
+alert("請輸入初始論述");
+return;
+}
+
+let framework="";
+
+if(mode==="single"){
+if(!selectedFramework){
+alert("單一框架模式請選擇框架");
+return;
+}
+framework=selectedFramework;
+}
+
+if(mode==="random"){
+let keys=Object.keys(FRAMEWORKS);
+framework=keys[Math.floor(Math.random()*keys.length)];
+}
+
+if(mode==="fusion"){
+framework=Object.keys(FRAMEWORKS).join("、");
+}
+
+add("原始論述：\n"+topic+"\n使用框架："+framework,"user");
+
+const prompt=`你是溝通框架訓練AI。
+使用框架：${framework}
+原始論述：${topic}
+請提供：
+1.核心問題
+2.框架分析
+3.建議回應
+4.實際對話範例`;
+
 try{
-let r=await fetch(WORKER,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{role:"user",parts:[{text:p}]}]})});
-let d=await r.json();add(d.text||"AI沒有回覆","ai");
-}catch(e){add("錯誤："+e.message,"ai")}
+let r=await fetch(WORKER,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+contents:[{role:"user",parts:[{text:prompt}]}]
+})
+});
+
+let data=await r.json();
+
+add(data.text || "AI沒有回覆","ai");
+
+}catch(e){
+add("錯誤："+e.message,"ai");
+}
 }
 </script>
 </body>
