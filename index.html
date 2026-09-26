@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>框架練習機器人 - AI V2.5.2 FINAL FIXED</title>
+<title>框架練習機器人 - AI V2.5.3 WAIT-UNTIL-ANSWER FINAL</title>
 <style>
 *{box-sizing:border-box;font-family:"Microsoft JhengHei",Arial,sans-serif}
 :root{--primary:#4285f4;--border:#d9dde5;--muted:#6b7280}
@@ -61,8 +61,8 @@ const FRAMEWORKS={
 "植入":"在不破壞原對話的前提下，引入新的判準、資訊或思考方向。"
 };
 const state={manualFramework:null,randomFramework:null,busy:false};
-const MAX_ATTEMPTS=2;
-const RETRY_DELAY_MS=1500;
+const INITIAL_RETRY_DELAY_MS=1500;
+const MAX_RETRY_DELAY_MS=15000;
 const REQUEST_TIMEOUT_MS=60000;
 const els={topic:document.getElementById("topic"),mode:document.getElementById("mode"),buttons:document.getElementById("buttons"),selected:document.getElementById("selected"),modeHint:document.getElementById("modeHint"),chat:document.getElementById("chat"),empty:document.getElementById("empty"),reply:document.getElementById("reply"),sendBtn:document.getElementById("sendBtn")};
 function frameworkNames(){return Object.keys(FRAMEWORKS)}
@@ -198,6 +198,33 @@ candidates.unshift(text);
 return candidates.length?String(candidates[0]):"";
 }
 
+function isFatalApiError(message,status){
+const text=String(message||"").toLowerCase();
+
+const fatalHints=[
+"no credits remaining",
+"insufficient_quota",
+"prepayment credits are depleted",
+"billing",
+"invalid api key",
+"incorrect api key",
+"authentication",
+"unauthorized",
+"user location is not supported",
+"model",
+"not available to new users",
+"permission denied"
+];
+
+if(status===401||status===403)return true;
+return fatalHints.some(hint=>text.includes(hint));
+}
+
+function formatRetryStatus(attempt,delayMs,reason){
+const seconds=Math.max(1,Math.round(delayMs/1000));
+return `AI 尚未產生有效回答，正在持續等待。\n第 ${attempt} 次嘗試未成功，${seconds} 秒後自動重試…${reason?`\n原因：${reason}`:""}`;
+}
+
 async function fetchWithTimeout(url,options,timeoutMs){
 const controller=new AbortController();
 const timer=setTimeout(()=>controller.abort(),timeoutMs);
@@ -279,21 +306,24 @@ ${userReply||"（尚未提供，請先示範一個可直接使用的回應）"}
 如果模式是「融合全部9個框架」，請在同一份回答中整合九個框架，不要要求前端分別呼叫九次 API。`;
 
 setBusy(true);
-const loading=addMessage(`AI 分析中…（第 1/${MAX_ATTEMPTS} 次）`,"ai");
+const loading=addMessage("AI 分析中，正在等待有效回答…","ai");
 
 try{
-let finalAnswer="";
+let attempt=0;
+let retryDelay=INITIAL_RETRY_DELAY_MS;
 
-for(let attempt=1;attempt<=MAX_ATTEMPTS;attempt++){
+while(true){
+attempt+=1;
 
-if(attempt>1){
-loading.textContent=`第一次沒有收到有效內容，正在自動重試…（第 ${attempt}/${MAX_ATTEMPTS} 次）`;
-await sleep(RETRY_DELAY_MS);
+if(attempt===1){
+loading.textContent="AI 分析中，正在等待有效回答…";
 }else{
-loading.textContent=`AI 分析中…（第 ${attempt}/${MAX_ATTEMPTS} 次）`;
+loading.textContent=`AI 正在重新嘗試…（第 ${attempt} 次）`;
 }
 
-let response;
+let response=null;
+let data={};
+let rawText="";
 
 try{
 response=await fetchWithTimeout(
@@ -311,76 +341,86 @@ parts:[{text:prompt}]
 REQUEST_TIMEOUT_MS
 );
 }catch(fetchError){
-if(fetchError?.name==="AbortError"){
-if(attempt<MAX_ATTEMPTS){
-loading.textContent="AI 回應逾時，準備自動重試…";
+const reason=fetchError?.name==="AbortError"
+?"本次請求逾時"
+:(fetchError?.message||"連線失敗");
+
+loading.textContent=formatRetryStatus(attempt,retryDelay,reason);
+await sleep(retryDelay);
+retryDelay=Math.min(retryDelay*2,MAX_RETRY_DELAY_MS);
 continue;
 }
-throw new Error("AI 回應逾時，請稍後再試");
-}
-
-if(attempt<MAX_ATTEMPTS){
-loading.textContent="連線暫時失敗，準備自動重試…";
-continue;
-}
-throw fetchError;
-}
-
-let rawText="";
-let data={};
 
 try{
 rawText=await response.text();
 data=rawText?JSON.parse(rawText):{};
 }catch(parseError){
-if(attempt<MAX_ATTEMPTS){
-loading.textContent="Worker 回傳格式異常，準備自動重試…";
-continue;
-}
-throw new Error(
-`Worker 回傳不是有效 JSON（HTTP ${response.status}）`+
-(rawText?`：${rawText.slice(0,250)}`:"")
+loading.textContent=formatRetryStatus(
+attempt,
+retryDelay,
+`Worker 回傳格式異常（HTTP ${response.status}）`
 );
+await sleep(retryDelay);
+retryDelay=Math.min(retryDelay*2,MAX_RETRY_DELAY_MS);
+continue;
 }
 
 const apiError=getApiError(data);
 
 if(!response.ok){
-if(apiError)throw new Error(apiError);
-throw new Error(`HTTP ${response.status}`);
+const message=apiError||`HTTP ${response.status}`;
+
+if(isFatalApiError(message,response.status)){
+throw new Error(message);
+}
+
+loading.textContent=formatRetryStatus(attempt,retryDelay,message);
+await sleep(retryDelay);
+retryDelay=Math.min(retryDelay*2,MAX_RETRY_DELAY_MS);
+continue;
 }
 
 if(apiError){
+if(isFatalApiError(apiError,response.status)){
 throw new Error(apiError);
+}
+
+loading.textContent=formatRetryStatus(attempt,retryDelay,apiError);
+await sleep(retryDelay);
+retryDelay=Math.min(retryDelay*2,MAX_RETRY_DELAY_MS);
+continue;
 }
 
 const answer=extractAnswer(data);
 
 if(answer&&!isPlaceholderAnswer(answer)){
-finalAnswer=String(answer).trim();
+loading.className="msg ai";
+loading.textContent=String(answer).trim();
 break;
 }
 
-console.warn(`第 ${attempt} 次請求沒有有效 AI 內容：`,data);
+console.warn(`第 ${attempt} 次沒有取得有效 AI 回答：`,data);
 
-if(attempt===MAX_ATTEMPTS){
-throw new Error("AI 連續兩次都沒有產生有效內容，請稍後再試");
-}
-}
+loading.textContent=formatRetryStatus(
+attempt,
+retryDelay,
+"AI 回傳空內容或暫時性占位訊息"
+);
 
-loading.className="msg ai";
-loading.textContent=finalAnswer;
+await sleep(retryDelay);
+retryDelay=Math.min(retryDelay*2,MAX_RETRY_DELAY_MS);
+}
 
 }catch(error){
 loading.className="msg error";
-loading.textContent="錯誤："+(error?.message||String(error));
+loading.textContent="無法繼續請求："+(error?.message||String(error));
 console.error("分析失敗：",error);
 }finally{
 setBusy(false);
 }
 }
 
-function init(){buildFrameworkButtons();els.mode.addEventListener("change",onModeChanged);els.sendBtn.addEventListener("click",analyze);state.randomFramework=pickRandomFramework();renderModeState();console.log("Framework Trainer V2.5.2 FINAL FIXED initialized");console.log("Worker:",WORKER)}
+function init(){buildFrameworkButtons();els.mode.addEventListener("change",onModeChanged);els.sendBtn.addEventListener("click",analyze);state.randomFramework=pickRandomFramework();renderModeState();console.log("Framework Trainer V2.5.3 WAIT-UNTIL-ANSWER FINAL initialized");console.log("Worker:",WORKER)}
 init();
 </script>
 </body>
