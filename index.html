@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>框架練習機器人 - AI V2.5.1 RETRY FINAL</title>
+<title>框架練習機器人 - AI V2.5.2 FINAL FIXED</title>
 <style>
 *{box-sizing:border-box;font-family:"Microsoft JhengHei",Arial,sans-serif}
 :root{--primary:#4285f4;--border:#d9dde5;--muted:#6b7280}
@@ -60,16 +60,90 @@ const FRAMEWORKS={
 "重構":"改變原本問題的看法或定義，建立新的理解與方案。",
 "植入":"在不破壞原對話的前提下，引入新的判準、資訊或思考方向。"
 };
-const state={manualFramework:null,randomFramework:null,busy:false};\nconst MAX_ATTEMPTS=2;\nconst RETRY_DELAY_MS=1500;\nconst REQUEST_TIMEOUT_MS=60000;
+const state={manualFramework:null,randomFramework:null,busy:false};
+const MAX_ATTEMPTS=2;
+const RETRY_DELAY_MS=1500;
+const REQUEST_TIMEOUT_MS=60000;
 const els={topic:document.getElementById("topic"),mode:document.getElementById("mode"),buttons:document.getElementById("buttons"),selected:document.getElementById("selected"),modeHint:document.getElementById("modeHint"),chat:document.getElementById("chat"),empty:document.getElementById("empty"),reply:document.getElementById("reply"),sendBtn:document.getElementById("sendBtn")};
 function frameworkNames(){return Object.keys(FRAMEWORKS)}
 function pickRandomFramework(){const names=frameworkNames();return names[Math.floor(Math.random()*names.length)]}
 function clearActiveButtons(){document.querySelectorAll(".fbtn").forEach(btn=>btn.classList.remove("active"))}
 function setActiveButton(name){clearActiveButtons();document.querySelectorAll(".fbtn").forEach(btn=>{if(btn.dataset.name===name)btn.classList.add("active")})}
 function buildFrameworkButtons(){for(const name of frameworkNames()){const btn=document.createElement("button");btn.type="button";btn.className="fbtn";btn.dataset.name=name;btn.textContent=name;btn.addEventListener("click",()=>{state.manualFramework=name;els.mode.value="manual";renderModeState()});els.buttons.appendChild(btn)}}
-function renderModeState(){const mode=els.mode.value;if(mode==="manual"){state.randomFramework=null;if(state.manualFramework){setActiveButton(state.manualFramework);els.selected.textContent="目前框架："+state.manualFramework;els.modeHint.textContent="手動模式：開始分析時使用你點選的框架。"}else{clearActiveButtons();els.selected.textContent="手動模式：尚未選擇框架";els.modeHint.textContent="請從上方 9 個框架中選擇一個。"}return}if(mode==="random"){if(!state.randomFramework)state.randomFramework=pickRandomFramework();setActiveButton(state.randomFramework);els.selected.textContent="隨機選擇框架："+state.randomFramework;els.modeHint.textContent="此框架已選定；切換離開再回到隨機模式時會重新抽取。";return}if(mode==="all"){state.randomFramework=null;clearActiveButtons();els.selected.textContent="使用框架：全部9個框架";els.modeHint.textContent="融合模式只送出 1 次 API 請求，由 AI 在同一次回答中整合全部 9 個框架。"}}
+function renderModeState(){
+const mode=els.mode.value;
+
+if(mode==="manual"){
+state.randomFramework=null;
+if(state.manualFramework){
+setActiveButton(state.manualFramework);
+els.selected.textContent="目前框架："+state.manualFramework;
+els.modeHint.textContent="手動模式：開始分析時只使用你點選的框架。";
+}else{
+clearActiveButtons();
+els.selected.textContent="手動模式：尚未選擇框架";
+els.modeHint.textContent="請從上方 9 個框架中選擇一個。";
+}
+return;
+}
+
+if(mode==="random"){
+if(!state.randomFramework){
+state.randomFramework=pickRandomFramework();
+}
+setActiveButton(state.randomFramework);
+els.selected.textContent="隨機選擇框架："+state.randomFramework;
+els.modeHint.textContent="隨機模式：已自動選定框架，不需要再手動點選。";
+return;
+}
+
+if(mode==="all"){
+state.randomFramework=null;
+clearActiveButtons();
+els.selected.textContent="使用框架：全部9個框架";
+els.modeHint.textContent="融合模式：不需要手動選擇框架，9 個框架會在同一個 API 請求中一起分析。";
+return;
+}
+}
 function onModeChanged(){const mode=els.mode.value;state.randomFramework=mode==="random"?pickRandomFramework():null;renderModeState()}
-function resolveFrameworkForAnalysis(){const mode=els.mode.value;if(mode==="manual"){if(!state.manualFramework)throw new Error("請選擇框架");return{mode,display:state.manualFramework,promptText:`${state.manualFramework}：${FRAMEWORKS[state.manualFramework]}`}}if(mode==="random"){if(!state.randomFramework){state.randomFramework=pickRandomFramework();renderModeState()}return{mode,display:state.randomFramework,promptText:`${state.randomFramework}：${FRAMEWORKS[state.randomFramework]}`}}if(mode==="all"){return{mode,display:"全部9個框架",promptText:frameworkNames().map(name=>`${name}：${FRAMEWORKS[name]}`).join("\n")}}throw new Error("未知的練習模式")}
+function resolveFrameworkForAnalysis(){
+const mode=els.mode.value;
+
+if(mode==="manual"){
+if(!state.manualFramework){
+throw new Error("請選擇框架");
+}
+return{
+mode:"manual",
+display:state.manualFramework,
+promptText:`${state.manualFramework}：${FRAMEWORKS[state.manualFramework]}`
+};
+}
+
+if(mode==="random"){
+if(!state.randomFramework){
+state.randomFramework=pickRandomFramework();
+renderModeState();
+}
+return{
+mode:"random",
+display:state.randomFramework,
+promptText:`${state.randomFramework}：${FRAMEWORKS[state.randomFramework]}`
+};
+}
+
+if(mode==="all"){
+return{
+mode:"all",
+display:"全部9個框架",
+promptText:frameworkNames()
+.map(name=>`${name}：${FRAMEWORKS[name]}`)
+.join("\n")
+};
+}
+
+throw new Error("未知的練習模式");
+}
 function addMessage(text,type="ai"){if(els.empty){els.empty.remove();els.empty=null}const div=document.createElement("div");div.className="msg "+type;div.textContent=text;els.chat.appendChild(div);els.chat.scrollTop=els.chat.scrollHeight;return div}
 function setBusy(busy){
 state.busy=busy;
@@ -306,7 +380,7 @@ setBusy(false);
 }
 }
 
-function init(){buildFrameworkButtons();els.mode.addEventListener("change",onModeChanged);els.sendBtn.addEventListener("click",analyze);state.randomFramework=pickRandomFramework();renderModeState();console.log("Framework Trainer V2.5.1 RETRY FINAL initialized");console.log("Worker:",WORKER)}
+function init(){buildFrameworkButtons();els.mode.addEventListener("change",onModeChanged);els.sendBtn.addEventListener("click",analyze);state.randomFramework=pickRandomFramework();renderModeState();console.log("Framework Trainer V2.5.2 FINAL FIXED initialized");console.log("Worker:",WORKER)}
 init();
 </script>
 </body>
