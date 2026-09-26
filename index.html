@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>框架練習機器人 - AI V2.9 MERGED</title>
+<title>框架練習機器人 - AI V2.9.1 MODEL-FAILOVER</title>
 <style>
 *{box-sizing:border-box;font-family:"Microsoft JhengHei",Arial,sans-serif}
 :root{--primary:#4285f4;--border:#d9dde5;--muted:#6b7280}
@@ -464,6 +464,7 @@ delay=Math.min(delay*2,RETRY_MAX_MS);
 continue;
 }
 
+if(data?.model) console.log("Gemini model used:", data.model);
 return data;
 
 }catch(error){
@@ -581,7 +582,7 @@ submitCurrent();
 }
 });
 
-console.log("Framework Trainer V2.9 MERGED initialized");
+console.log("Framework Trainer V2.9.1 MODEL-FAILOVER initialized");
 }
 
 init();
