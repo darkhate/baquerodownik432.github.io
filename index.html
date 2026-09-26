@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>框架練習機器人 - V2.8 教練模式</title>
+<title>框架練習機器人 - AI V2.9 MERGED</title>
 <style>
 *{box-sizing:border-box;font-family:"Microsoft JhengHei",Arial,sans-serif}
-:root{--primary:#4285f4;--border:#d9dde5;--muted:#6b7280;--ok:#0f9d58;--warn:#b45309}
+:root{--primary:#4285f4;--border:#d9dde5;--muted:#6b7280}
 html,body{margin:0;height:100%;background:#eef2ff;color:#222}
 body{overflow:hidden}
 .header{height:92px;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg,#3f80ee,#5e7fe9);color:#fff;font-size:30px;font-weight:700}
 .status{height:54px;padding:15px 20px;background:#fff;color:#07945b;border-bottom:1px solid #e5e7eb;font-size:16px}
 .app{height:calc(100vh - 146px);display:flex;background:#fff}
-.left{width:430px;min-width:350px;padding:18px 20px 30px;border-right:1px solid var(--border);overflow-y:auto}
+.left{width:420px;min-width:340px;padding:18px 20px 30px;border-right:1px solid var(--border);overflow-y:auto}
 .right{flex:1;min-width:0;display:flex;flex-direction:column}
 h3{margin:14px 0 10px;font-size:20px}
 textarea,select{width:100%;border:1px solid #cfd4dc;border-radius:10px;font-size:16px;padding:12px 14px;background:#fff}
@@ -21,38 +21,36 @@ textarea:focus,select:focus{outline:2px solid rgba(66,133,244,.18);border-color:
 .frameworks{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
 .fbtn{height:68px;border-radius:10px;background:#fff;font-size:17px;font-weight:700;cursor:pointer;border:2px solid;transition:.12s}
 .fbtn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.07)}
-.fbtn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.fbtn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
 .fbtn[data-name="崩解"]{color:#ff3b3b;border-color:#ff3b3b}
 .fbtn[data-name="壓縮"]{color:#10b981;border-color:#10b981}
 .fbtn[data-name="分割"]{color:#06b6d4;border-color:#06b6d4}
 .fbtn[data-name="重塑"]{color:#ec4899;border-color:#ec4899}
 .fbtn[data-name="植入"]{color:#65a30d;border-color:#65a30d}
 .fbtn.active{background:var(--primary)!important;color:#fff!important;border-color:var(--primary)!important}
-.card{margin-top:14px;padding:12px 14px;background:#f3f4f6;border-radius:10px;line-height:1.55}
-.progress{margin-top:10px;padding:12px 14px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;line-height:1.55;font-size:14px}
+.selected{margin-top:14px;padding:12px 14px;background:#f3f4f6;border-radius:10px;line-height:1.5;min-height:46px}
+.progress{margin-top:10px;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;line-height:1.55;font-size:14px;color:#4b5563}
 .hint{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.5}
-.start{width:100%;height:52px;border:0;border-radius:10px;background:#1f6feb;color:#fff;font-size:17px;font-weight:700;cursor:pointer;margin-top:14px}
-.start:disabled{opacity:.55;cursor:not-allowed}
 .chat{flex:1;min-height:0;overflow-y:auto;padding:22px 28px;background:#fafafa}
 .empty{color:#9ca3af;text-align:center;margin-top:70px;font-size:17px}
 .msg{max-width:86%;white-space:pre-wrap;line-height:1.65;padding:14px 16px;margin:10px 0;border-radius:14px;overflow-wrap:anywhere}
 .msg.user{margin-left:auto;background:var(--primary);color:#fff}
-.msg.coach{margin-right:auto;background:#ececec;color:#111}
-.msg.stage{margin-right:auto;background:#e8f0fe;color:#173b73;border:1px solid #c7dcff}
+.msg.ai{margin-right:auto;background:#ececec;color:#111}
+.msg.step{margin-right:auto;background:#e8f0fe;color:#173b73;border:1px solid #c7dcff}
 .msg.hintmsg{margin-right:auto;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
 .msg.ok{margin-right:auto;background:#ecfdf3;color:#166534;border:1px solid #bbf7d0}
 .msg.error{margin-right:auto;background:#fee2e2;color:#991b1b}
-.bottom{border-top:1px solid #e5e7eb;background:#fff;padding:16px 20px;display:flex;gap:10px;align-items:stretch}
+.bottom{border-top:1px solid #e5e7eb;background:#fff;padding:16px 20px;display:flex;gap:12px;align-items:stretch}
 #reply{min-height:82px;resize:vertical}
-.actionbtn{border:0;border-radius:10px;color:#fff;font-size:17px;font-weight:700;cursor:pointer;padding:0 20px;min-width:130px}
-#submitBtn{background:var(--primary)}
-#hintBtn{background:#f59e0b}
-.actionbtn:disabled{opacity:.55;cursor:not-allowed}
-@media(max-width:900px){body{overflow:auto}.app{height:auto;min-height:calc(100vh - 146px);flex-direction:column}.left{width:100%;min-width:0;border-right:0;border-bottom:1px solid var(--border)}.right{min-height:650px}.bottom{flex-direction:column}.actionbtn{width:100%;height:52px}}
+.send,.hintbtn{border:0;border-radius:10px;color:#fff;font-size:18px;font-weight:700;cursor:pointer}
+.send{width:150px;background:var(--primary)}
+.hintbtn{width:170px;background:#f59e0b}
+.send:disabled,.hintbtn:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:900px){body{overflow:auto}.app{height:auto;min-height:calc(100vh - 146px);flex-direction:column}.left{width:100%;min-width:0;border-right:0;border-bottom:1px solid var(--border)}.right{min-height:650px}.bottom{flex-direction:column}.send,.hintbtn{width:100%;height:56px}}
 </style>
 </head>
 <body>
-<div class="header">🤖 框架練習機器人 - 教練模式</div>
+<div class="header">🤖 框架練習機器人 - AI</div>
 <div class="status">✓ 已連接安全 AI Gateway（Cloudflare Worker）</div>
 
 <div class="app">
@@ -63,29 +61,25 @@ textarea:focus,select:focus{outline:2px solid rgba(66,133,244,.18);border-color:
 <h3>練習模式</h3>
 <select id="mode">
 <option value="random">隨機一個框架</option>
-<option value="all">依序練習全部5個框架</option>
+<option value="all">融合所有5個框架</option>
 <option value="manual">手動選擇框架</option>
 </select>
 
 <h3>框架選擇（5個）</h3>
 <div class="frameworks" id="buttons"></div>
-
-<div class="card" id="selected"></div>
-<div class="progress" id="progress"></div>
+<div class="selected" id="selected"></div>
+<div class="progress" id="progress">尚未開始練習。</div>
 <div class="hint" id="modeHint"></div>
-
-<button class="start" id="startBtn" type="button">開始練習</button>
 </aside>
 
 <main class="right">
 <div class="chat" id="chat">
-<div class="empty" id="empty">先選模式並開始練習。AI 只會出題與判斷方向，不會先替你作答。</div>
+<div class="empty" id="empty">請輸入初始論述並開始分析。AI 只負責出題、判斷方向；分析步驟由你回答。</div>
 </div>
-
 <div class="bottom">
-<textarea id="reply" placeholder="在這裡回答目前這一步…"></textarea>
-<button class="actionbtn" id="submitBtn" type="button" disabled>送出回答</button>
-<button class="actionbtn" id="hintBtn" type="button" disabled>我答不出來，給提示</button>
+<textarea id="reply" placeholder="輸入你的回應（開始後在這裡回答目前步驟）"></textarea>
+<button class="send" id="sendBtn" type="button">開始分析</button>
+<button class="hintbtn" id="hintBtn" type="button" disabled>我答不出來，給提示</button>
 </div>
 </main>
 </div>
@@ -99,9 +93,9 @@ const COURSE={
 "崩解":{
 description:"辨識對方建立的語言框架、假設或前提，然後直接擊破。",
 steps:[
-{name:"框架識別",goal:"抓出對方話語背後的隱含框架、假設或等號關係。",question:"先不要反駁。你認為這句話背後隱藏了什麼框架、假設或『等號關係』？"},
+{name:"框架識別",goal:"抓出對方話語背後的隱含框架、假設或等號關係。",question:"你認為這句話背後隱藏了什麼框架、假設或『等號關係』？"},
 {name:"框架確認",goal:"確認自己是否正確理解對方的框架，避免拆錯方向。",question:"你會怎麼問對方，確認自己沒有抓錯他的框架？"},
-{name:"框架拆除",goal:"指出框架漏洞，讓原本的邏輯或等號關係失效。",question:"現在你會怎麼回，讓這個框架失效？"}
+{name:"框架拆除",goal:"指出框架漏洞，讓原本的邏輯或等號關係失效。",question:"你會怎麼回，讓這個框架的邏輯失效？"}
 ]},
 "壓縮":{
 description:"把大量論點、資訊、角度濃縮在一瞬間拋出，主導對話節奏。",
@@ -130,7 +124,8 @@ steps:[
 {name:"認知鋪墊",goal:"先建立共同經驗或共同語境，降低對新觀點的抵抗。",question:"你會先用什麼共同經驗、故事或情境做鋪墊？"},
 {name:"概念灌注",goal:"把新的觀點自然放進對方理解中，不用強迫式說服。",question:"接下來你要植入的核心概念是什麼？你會怎麼自然地說出來？"},
 {name:"無壓收尾",goal:"留下選擇空間與正向印象，不強迫對方立刻接受。",question:"最後你會怎麼收尾，讓對方有選擇空間但保留這個觀點？"}
-]}};
+]}
+};
 
 const FRAMEWORK_ORDER=["崩解","壓縮","分割","重塑","植入"];
 
@@ -138,11 +133,17 @@ const state={
 active:false,
 busy:false,
 manualFramework:null,
+randomFramework:null,
 queue:[],
 frameworkIndex:0,
 stepIndex:0,
-attempts:0
+attempt:0,
+answers:{}
 };
+
+const RETRY_START_MS=1500;
+const RETRY_MAX_MS=15000;
+const REQUEST_TIMEOUT_MS=60000;
 
 const els={
 topic:document.getElementById("topic"),
@@ -151,11 +152,10 @@ buttons:document.getElementById("buttons"),
 selected:document.getElementById("selected"),
 progress:document.getElementById("progress"),
 modeHint:document.getElementById("modeHint"),
-startBtn:document.getElementById("startBtn"),
 chat:document.getElementById("chat"),
 empty:document.getElementById("empty"),
 reply:document.getElementById("reply"),
-submitBtn:document.getElementById("submitBtn"),
+sendBtn:document.getElementById("sendBtn"),
 hintBtn:document.getElementById("hintBtn")
 };
 
@@ -185,36 +185,92 @@ btn.addEventListener("click",()=>{
 if(state.active)return;
 state.manualFramework=name;
 els.mode.value="manual";
-renderSelection();
+renderModeState();
 });
 els.buttons.appendChild(btn);
 }
 }
 
-function renderSelection(){
+function renderModeState(){
+if(state.active)return;
 const mode=els.mode.value;
 
 if(mode==="manual"){
+state.randomFramework=null;
 if(state.manualFramework){
 setActiveButton(state.manualFramework);
 els.selected.textContent="目前框架："+state.manualFramework;
-els.modeHint.textContent="手動模式：只練這一個框架的三個步驟。";
+els.modeHint.textContent="手動模式：開始後依序由你回答這個框架的三個分析步驟。";
 }else{
 clearActiveButtons();
 els.selected.textContent="手動模式：尚未選擇框架";
-els.modeHint.textContent="請從 5 個框架中選 1 個。";
+els.modeHint.textContent="請從上方 5 個框架中選擇一個。";
 }
-}else if(mode==="random"){
-clearActiveButtons();
-els.selected.textContent="隨機模式：開始時才抽框架";
-els.modeHint.textContent="AI 不會先給答案，只會依步驟出題與判斷你的方向。";
-}else{
-clearActiveButtons();
-els.selected.textContent="全部模式：依序練習 5 個框架";
-els.modeHint.textContent="順序：崩解 → 壓縮 → 分割 → 重塑 → 植入；每個框架各自完成三個步驟。";
+return;
 }
 
-renderProgress();
+if(mode==="random"){
+if(!state.randomFramework)state.randomFramework=pickRandomFramework();
+setActiveButton(state.randomFramework);
+els.selected.textContent="隨機選擇框架："+state.randomFramework;
+els.modeHint.textContent="隨機模式：框架已自動選定；分析步驟仍由你自己回答。";
+return;
+}
+
+if(mode==="all"){
+state.randomFramework=null;
+clearActiveButtons();
+els.selected.textContent="使用框架：全部5個框架";
+els.modeHint.textContent="全部模式：依序完成崩解、壓縮、分割、重塑、植入；AI 不代答分析步驟。";
+}
+}
+
+function onModeChanged(){
+if(state.active)return;
+state.randomFramework=els.mode.value==="random"?pickRandomFramework():null;
+renderModeState();
+}
+
+function resolveQueue(){
+const mode=els.mode.value;
+
+if(mode==="manual"){
+if(!state.manualFramework)throw new Error("請選擇框架");
+return [state.manualFramework];
+}
+
+if(mode==="random"){
+if(!state.randomFramework)state.randomFramework=pickRandomFramework();
+return [state.randomFramework];
+}
+
+if(mode==="all"){
+return [...FRAMEWORK_ORDER];
+}
+
+throw new Error("未知的練習模式");
+}
+
+function currentFramework(){return state.queue[state.frameworkIndex]}
+function currentStep(){return COURSE[currentFramework()].steps[state.stepIndex]}
+
+function addMessage(text,type="ai"){
+if(els.empty){els.empty.remove();els.empty=null}
+const div=document.createElement("div");
+div.className="msg "+type;
+div.textContent=text;
+els.chat.appendChild(div);
+els.chat.scrollTop=els.chat.scrollHeight;
+return div;
+}
+
+function setBusy(busy){
+state.busy=busy;
+els.sendBtn.disabled=busy;
+els.hintBtn.disabled=!state.active||busy;
+els.mode.disabled=state.active||busy;
+els.topic.disabled=state.active||busy;
+document.querySelectorAll(".fbtn").forEach(btn=>btn.disabled=state.active||busy);
 }
 
 function renderProgress(){
@@ -228,139 +284,167 @@ els.progress.textContent=
 `進度：框架 ${state.frameworkIndex+1}/${state.queue.length}｜${fw}｜步驟 ${state.stepIndex+1}/${COURSE[fw].steps.length}：${step.name}`;
 }
 
-function currentFramework(){
-return state.queue[state.frameworkIndex];
-}
-
-function currentStep(){
-return COURSE[currentFramework()].steps[state.stepIndex];
-}
-
-function addMessage(text,type="coach"){
-if(els.empty){els.empty.remove();els.empty=null}
-const div=document.createElement("div");
-div.className="msg "+type;
-div.textContent=text;
-els.chat.appendChild(div);
-els.chat.scrollTop=els.chat.scrollHeight;
-return div;
-}
-
-function setBusy(busy){
-state.busy=busy;
-els.submitBtn.disabled=!state.active||busy;
-els.hintBtn.disabled=!state.active||busy;
-els.startBtn.disabled=busy;
-els.reply.disabled=!state.active||busy;
-}
-
-function lockSetup(lock){
-els.mode.disabled=lock;
-els.topic.disabled=lock;
-document.querySelectorAll(".fbtn").forEach(btn=>btn.disabled=lock);
-}
-
-function announceCurrentStep(){
+function announceStep(){
 const fw=currentFramework();
 const step=currentStep();
-
 setActiveButton(fw);
-els.selected.textContent=`目前框架：${fw}`;
+els.selected.textContent="目前框架："+fw;
 renderProgress();
 
 addMessage(
 `【${fw}｜${step.name}】\n${step.question}`,
-"stage"
+"step"
 );
+
 els.reply.value="";
 els.reply.focus();
 }
 
-function finishPractice(){
-state.active=false;
-lockSetup(false);
-setBusy(false);
-els.submitBtn.disabled=true;
-els.hintBtn.disabled=true;
-els.reply.disabled=true;
-clearActiveButtons();
-els.selected.textContent="本輪練習完成";
-els.progress.textContent="已完成本輪練習。";
-addMessage("本輪練習完成。你可以修改初始論述或模式，再開始下一輪。","ok");
+function buildHistory(){
+const fw=currentFramework();
+return Object.entries(state.answers[fw]||{}).map(([step,answer])=>({step,answer}));
 }
 
-function advanceStep(){
+function startPractice(){
+const topic=els.topic.value.trim();
+if(!topic){
+alert("請輸入初始論述");
+els.topic.focus();
+return;
+}
+
+let queue;
+try{
+queue=resolveQueue();
+}catch(error){
+alert(error.message);
+return;
+}
+
+state.active=true;
+state.queue=queue;
+state.frameworkIndex=0;
+state.stepIndex=0;
+state.attempt=0;
+state.answers={};
+
+for(const fw of queue)state.answers[fw]={};
+
+els.sendBtn.textContent="送出回答";
+els.hintBtn.disabled=false;
+setBusy(false);
+
+addMessage(
+`使用框架：${queue.length===1?queue[0]:"全部5個框架"}\n\n原始論述：\n${topic}`,
+"user"
+);
+
+announceStep();
+}
+
+function finishPractice(){
+const lines=[];
+for(const fw of state.queue){
+lines.push(`【${fw}】`);
+for(const step of COURSE[fw].steps){
+const answer=state.answers[fw]?.[step.name];
+if(answer)lines.push(`${step.name}：${answer}`);
+}
+lines.push("");
+}
+
+addMessage(
+"本輪練習完成。以下只整理你自己的作答，不新增標準答案：\n\n"+lines.join("\n").trim(),
+"ok"
+);
+
+state.active=false;
+state.busy=false;
+state.queue=[];
+state.frameworkIndex=0;
+state.stepIndex=0;
+state.attempt=0;
+
+els.sendBtn.textContent="開始分析";
+els.hintBtn.disabled=true;
+els.mode.disabled=false;
+els.topic.disabled=false;
+document.querySelectorAll(".fbtn").forEach(btn=>btn.disabled=false);
+els.reply.value="";
+els.selected.textContent="本輪練習完成";
+els.progress.textContent="已完成本輪練習。";
+clearActiveButtons();
+renderModeState();
+}
+
+function advance(){
 const fw=currentFramework();
 
 if(state.stepIndex+1<COURSE[fw].steps.length){
 state.stepIndex+=1;
-state.attempts=0;
-announceCurrentStep();
+state.attempt=0;
+announceStep();
 return;
 }
 
-addMessage(`「${fw}」三個步驟完成。`,"ok");
+addMessage(`「${fw}」完成。`,"ok");
 
 if(state.frameworkIndex+1<state.queue.length){
 state.frameworkIndex+=1;
 state.stepIndex=0;
-state.attempts=0;
-addMessage(`進入下一個框架：${currentFramework()}`,"stage");
-announceCurrentStep();
+state.attempt=0;
+announceStep();
 return;
 }
 
 finishPractice();
 }
 
-function startPractice(){
-if(state.busy)return;
+function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
 
-const topic=els.topic.value.trim();
-if(!topic){
-alert("請先輸入初始論述");
-els.topic.focus();
-return;
+async function fetchWithTimeout(url,options,timeoutMs){
+const controller=new AbortController();
+const timer=setTimeout(()=>controller.abort(),timeoutMs);
+try{
+return await fetch(url,{...options,signal:controller.signal});
+}finally{
+clearTimeout(timer);
+}
 }
 
-const mode=els.mode.value;
-
-if(mode==="manual"&&!state.manualFramework){
-alert("請先選擇框架");
-return;
+function fatalError(message,status){
+const text=String(message||"").toLowerCase();
+if(status===401||status===403)return true;
+return [
+"gemini_api_key is not configured",
+"invalid api key",
+"incorrect api key",
+"user location is not supported",
+"prepayment credits are depleted",
+"no credits remaining",
+"permission denied",
+"authentication",
+"unauthorized"
+].some(x=>text.includes(x));
 }
 
-if(mode==="manual"){
-state.queue=[state.manualFramework];
-}else if(mode==="random"){
-const picked=pickRandomFramework();
-state.queue=[picked];
-addMessage(`本輪隨機框架：${picked}`,"coach");
-}else{
-state.queue=[...FRAMEWORK_ORDER];
-}
+async function postJsonWithRetry(payload,loading){
+let delay=RETRY_START_MS;
+let attempt=0;
 
-state.frameworkIndex=0;
-state.stepIndex=0;
-state.attempts=0;
-state.active=true;
+while(true){
+attempt+=1;
 
-lockSetup(true);
-els.startBtn.disabled=true;
-els.reply.disabled=false;
-els.submitBtn.disabled=false;
-els.hintBtn.disabled=false;
-
-addMessage(`初始論述：\n${topic}`,"user");
-announceCurrentStep();
-}
-
-async function callWorker(payload){
-const response=await fetch(WORKER,{
+try{
+const response=await fetchWithTimeout(
+WORKER,
+{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify(payload)
-});
+},
+REQUEST_TIMEOUT_MS
+);
 
 const raw=await response.text();
 let data={};
@@ -372,51 +456,72 @@ throw new Error(`Worker 回傳不是有效 JSON（HTTP ${response.status}）`);
 }
 
 if(!response.ok){
-throw new Error(data?.error||`HTTP ${response.status}`);
+const message=data?.error||`HTTP ${response.status}`;
+if(fatalError(message,response.status))throw new Error(message);
+loading.textContent=`AI 暫時沒有有效回應，${Math.round(delay/1000)} 秒後自動重試…\n原因：${message}`;
+await sleep(delay);
+delay=Math.min(delay*2,RETRY_MAX_MS);
+continue;
 }
 
 return data;
+
+}catch(error){
+if(fatalError(error.message,0))throw error;
+loading.textContent=`連線暫時失敗，${Math.round(delay/1000)} 秒後自動重試…\n原因：${error.message}`;
+await sleep(delay);
+delay=Math.min(delay*2,RETRY_MAX_MS);
+}
+}
 }
 
-async function submitAnswer(){
-if(!state.active||state.busy)return;
+async function submitCurrent(){
+if(!state.active){
+startPractice();
+return;
+}
+
+if(state.busy)return;
 
 const answer=els.reply.value.trim();
 if(!answer){
-alert("請先回答目前這一步；如果答不出來，可以按「我答不出來，給提示」。");
+alert("請回答目前這一步；如果答不出來，可以按「我答不出來，給提示」。");
 return;
 }
 
 const fw=currentFramework();
 const step=currentStep();
-state.attempts+=1;
+state.attempt+=1;
 
 addMessage(answer,"user");
-const loading=addMessage("AI 正在判斷你的方向…","coach");
+const loading=addMessage("AI 正在判斷你的方向…","ai");
 setBusy(true);
 
 try{
-const data=await callWorker({
+const data=await postJsonWithRetry({
 action:"evaluate_step",
 topic:els.topic.value.trim(),
 framework:fw,
 step:step.name,
+stepGoal:step.goal,
 userAnswer:answer,
-attempt:state.attempts
-});
+history:buildHistory(),
+attempt:state.attempt
+},loading);
 
-if(data.verdict==="pass"){
+if(data?.verdict==="pass"){
+state.answers[fw][step.name]=answer;
 loading.className="msg ok";
-loading.textContent=data.feedback||"方向正確。";
+loading.textContent=data?.feedback||"方向正確。";
 setBusy(false);
-advanceStep();
+advance();
 return;
 }
 
 loading.className="msg hintmsg";
 loading.textContent=
-(data.feedback||"方向需要調整。")+
-(data.hint?`\n提示：${data.hint}`:"");
+(data?.feedback||"方向需要調整。")+
+(data?.hint?`\n提示：${data.hint}`:"");
 
 setBusy(false);
 els.reply.value="";
@@ -424,7 +529,7 @@ els.reply.focus();
 
 }catch(error){
 loading.className="msg error";
-loading.textContent="評估失敗："+error.message;
+loading.textContent="無法繼續請求："+error.message;
 setBusy(false);
 }
 }
@@ -434,42 +539,51 @@ if(!state.active||state.busy)return;
 
 const fw=currentFramework();
 const step=currentStep();
-
-const loading=addMessage("正在準備一個不直接破題的提示…","coach");
+const loading=addMessage("正在準備提示…","ai");
 setBusy(true);
 
 try{
-const data=await callWorker({
+const data=await postJsonWithRetry({
 action:"give_hint",
 topic:els.topic.value.trim(),
 framework:fw,
 step:step.name,
-previousAnswer:els.reply.value.trim()
-});
+stepGoal:step.goal,
+history:buildHistory(),
+draft:els.reply.value.trim()
+},loading);
 
 loading.className="msg hintmsg";
-loading.textContent=`提示：${data.hint||"先回到這一步的目的，再想想你要辨識／確認／處理的是什麼。"}`;
-
+loading.textContent="提示："+(data?.hint||"先回到目前這一步的目的，再想想你要處理的是哪一個核心點。");
 setBusy(false);
 els.reply.focus();
 
 }catch(error){
 loading.className="msg error";
-loading.textContent="取得提示失敗："+error.message;
+loading.textContent="無法取得提示："+error.message;
 setBusy(false);
 }
 }
 
 function init(){
 buildFrameworkButtons();
-els.mode.addEventListener("change",renderSelection);
-els.startBtn.addEventListener("click",startPractice);
-els.submitBtn.addEventListener("click",submitAnswer);
+els.mode.addEventListener("change",onModeChanged);
+els.sendBtn.addEventListener("click",submitCurrent);
 els.hintBtn.addEventListener("click",requestHint);
-renderSelection();
-els.reply.disabled=true;
-console.log("Framework Trainer V2.8 COACH MODE initialized");
+
+state.randomFramework=pickRandomFramework();
+renderModeState();
+
+els.reply.addEventListener("keydown",event=>{
+if(event.ctrlKey&&event.key==="Enter"){
+event.preventDefault();
+submitCurrent();
 }
+});
+
+console.log("Framework Trainer V2.9 MERGED initialized");
+}
+
 init();
 </script>
 </body>
