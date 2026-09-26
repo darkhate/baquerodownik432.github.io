@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>框架練習機器人 - AI V2.9.1 MODEL-FAILOVER</title>
+<title>框架練習機器人 - AI V2.9.2 MODEL-FAILOVER-FIX</title>
 <style>
 *{box-sizing:border-box;font-family:"Microsoft JhengHei",Arial,sans-serif}
 :root{--primary:#4285f4;--border:#d9dde5;--muted:#6b7280}
@@ -458,9 +458,30 @@ throw new Error(`Worker 回傳不是有效 JSON（HTTP ${response.status}）`);
 if(!response.ok){
 const message=data?.error||`HTTP ${response.status}`;
 if(fatalError(message,response.status))throw new Error(message);
-loading.textContent=`AI 暫時沒有有效回應，${Math.round(delay/1000)} 秒後自動重試…\n原因：${message}`;
-await sleep(delay);
-delay=Math.min(delay*2,RETRY_MAX_MS);
+
+/*
+  Worker 已經先輪完不同模型。
+  如果 Google 回傳 retryAfterSeconds，就尊重 Google 的等待時間；
+  不再固定 15 秒後重打。
+*/
+const serverRetrySeconds=Number(data?.retryAfterSeconds||0);
+const serverRetryMs=Number.isFinite(serverRetrySeconds)&&serverRetrySeconds>0
+?Math.ceil(serverRetrySeconds*1000)
+:0;
+
+const waitMs=Math.max(delay,serverRetryMs);
+const waitSeconds=Math.max(1,Math.ceil(waitMs/1000));
+
+const tried=Array.isArray(data?.triedModels)&&data.triedModels.length
+?`\n已嘗試模型：${data.triedModels.join(" → ")}`
+:"";
+
+loading.textContent=`AI 暫時沒有有效回應，${waitSeconds} 秒後自動重試…${tried}\n原因：${message}`;
+
+await sleep(waitMs);
+
+/* 下一輪仍保留指數退避，但 Google 指定的 retry-after 優先 */
+delay=Math.min(Math.max(delay*2,waitMs),Math.max(RETRY_MAX_MS,waitMs));
 continue;
 }
 
@@ -582,7 +603,7 @@ submitCurrent();
 }
 });
 
-console.log("Framework Trainer V2.9.1 MODEL-FAILOVER initialized");
+console.log("Framework Trainer V2.9.2 MODEL-FAILOVER-FIX initialized");
 }
 
 init();
