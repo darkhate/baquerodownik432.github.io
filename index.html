@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>框架練習機器人 - AI V2.5 FINAL</title>
+<title>框架練習機器人 - AI V2.5.1 RETRY FINAL</title>
 <style>
 *{box-sizing:border-box;font-family:"Microsoft JhengHei",Arial,sans-serif}
 :root{--primary:#4285f4;--border:#d9dde5;--muted:#6b7280}
@@ -60,7 +60,7 @@ const FRAMEWORKS={
 "重構":"改變原本問題的看法或定義，建立新的理解與方案。",
 "植入":"在不破壞原對話的前提下，引入新的判準、資訊或思考方向。"
 };
-const state={manualFramework:null,randomFramework:null,busy:false};
+const state={manualFramework:null,randomFramework:null,busy:false};\nconst MAX_ATTEMPTS=2;\nconst RETRY_DELAY_MS=1500;\nconst REQUEST_TIMEOUT_MS=60000;
 const els={topic:document.getElementById("topic"),mode:document.getElementById("mode"),buttons:document.getElementById("buttons"),selected:document.getElementById("selected"),modeHint:document.getElementById("modeHint"),chat:document.getElementById("chat"),empty:document.getElementById("empty"),reply:document.getElementById("reply"),sendBtn:document.getElementById("sendBtn")};
 function frameworkNames(){return Object.keys(FRAMEWORKS)}
 function pickRandomFramework(){const names=frameworkNames();return names[Math.floor(Math.random()*names.length)]}
@@ -71,13 +71,242 @@ function renderModeState(){const mode=els.mode.value;if(mode==="manual"){state.r
 function onModeChanged(){const mode=els.mode.value;state.randomFramework=mode==="random"?pickRandomFramework():null;renderModeState()}
 function resolveFrameworkForAnalysis(){const mode=els.mode.value;if(mode==="manual"){if(!state.manualFramework)throw new Error("請選擇框架");return{mode,display:state.manualFramework,promptText:`${state.manualFramework}：${FRAMEWORKS[state.manualFramework]}`}}if(mode==="random"){if(!state.randomFramework){state.randomFramework=pickRandomFramework();renderModeState()}return{mode,display:state.randomFramework,promptText:`${state.randomFramework}：${FRAMEWORKS[state.randomFramework]}`}}if(mode==="all"){return{mode,display:"全部9個框架",promptText:frameworkNames().map(name=>`${name}：${FRAMEWORKS[name]}`).join("\n")}}throw new Error("未知的練習模式")}
 function addMessage(text,type="ai"){if(els.empty){els.empty.remove();els.empty=null}const div=document.createElement("div");div.className="msg "+type;div.textContent=text;els.chat.appendChild(div);els.chat.scrollTop=els.chat.scrollHeight;return div}
-function setBusy(busy){state.busy=busy;els.sendBtn.disabled=busy;els.sendBtn.textContent=busy?"分析中…":"開始分析"}
-async function analyze(){if(state.busy)return;const topic=els.topic.value.trim();const userReply=els.reply.value.trim();if(!topic){alert("請輸入初始論述");els.topic.focus();return}let resolved;try{resolved=resolveFrameworkForAnalysis()}catch(error){alert(error.message);return}if(resolved.mode==="random"){els.selected.textContent="隨機選擇框架："+resolved.display;setActiveButton(resolved.display)}else if(resolved.mode==="all"){els.selected.textContent="使用框架：全部9個框架";clearActiveButtons()}else{els.selected.textContent="目前框架："+resolved.display;setActiveButton(resolved.display)}
-addMessage("使用框架："+resolved.display+"\n\n原始論述：\n"+topic+(userReply?"\n\n我的回應：\n"+userReply:""),"user");
-const modeLabel={manual:"手動單框架",random:"隨機單框架",all:"融合全部9個框架"}[resolved.mode];
-const prompt=`你是一個繁體中文的溝通框架訓練 AI。\n\n【任務】\n針對下方「初始論述」，依指定框架進行分析，並協助使用者練習實際溝通。\n\n【練習模式】\n${modeLabel}\n\n【使用框架】\n${resolved.promptText}\n\n【初始論述】\n${topic}\n\n【使用者目前回應】\n${userReply||"（尚未提供，請先示範一個可直接使用的回應）"}\n\n【輸出要求】\n1. 先指出本次實際使用的框架。\n2. 說明此框架如何解讀初始論述。\n3. 指出使用者應該注意的核心問題、假設、資訊缺口或溝通風險。\n4. 提供一段自然、可直接說出口的建議回應。\n5. 如果使用者已提供自己的回應，請具體指出優點與可改善處。\n6. 使用繁體中文，不要只給抽象理論。\n\n如果模式是「融合全部9個框架」，請在同一份回答中整合九個框架，不要要求前端分別呼叫九次 API。`;
-setBusy(true);const loading=addMessage("AI 分析中…","ai");try{const response=await fetch(WORKER,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}]})});let data=null;let rawText="";try{rawText=await response.text();data=rawText?JSON.parse(rawText):{}}catch(parseError){throw new Error(`Worker 回傳不是有效 JSON（HTTP ${response.status}）`+(rawText?`：${rawText.slice(0,250)}`:""))}if(!response.ok){const detail=data?.text||data?.error?.message||data?.error||`HTTP ${response.status}`;throw new Error(String(detail))}const answer=data?.text||data?.choices?.[0]?.message?.content||data?.candidates?.[0]?.content?.parts?.[0]?.text;if(!answer)throw new Error("Worker 已回應，但找不到 AI 文字內容。請查看 Network → Response。");loading.textContent=answer}catch(error){loading.className="msg error";loading.textContent="錯誤："+error.message;console.error("分析失敗：",error)}finally{setBusy(false)}}
-function init(){buildFrameworkButtons();els.mode.addEventListener("change",onModeChanged);els.sendBtn.addEventListener("click",analyze);state.randomFramework=pickRandomFramework();renderModeState();console.log("Framework Trainer V2.5 FINAL initialized");console.log("Worker:",WORKER)}
+function setBusy(busy){
+state.busy=busy;
+els.sendBtn.disabled=busy;
+els.sendBtn.textContent=busy?"分析中…":"開始分析";
+els.mode.disabled=busy;
+document.querySelectorAll(".fbtn").forEach(btn=>btn.disabled=busy);
+}
+
+function sleep(ms){
+return new Promise(resolve=>setTimeout(resolve,ms));
+}
+
+function extractAnswer(data){
+return data?.text
+||data?.choices?.[0]?.message?.content
+||data?.candidates?.[0]?.content?.parts?.[0]?.text
+||"";
+}
+
+function isPlaceholderAnswer(text){
+const value=String(text||"").trim();
+if(!value)return true;
+const placeholders=[
+"AI沒有回覆",
+"AI沒有產生回覆",
+"Gemini沒有回覆",
+"Gemini沒有產生內容",
+"GPT沒有回覆",
+"無回覆"
+];
+return placeholders.some(item=>value===item||value.includes(item));
+}
+
+function getApiError(data){
+const candidates=[
+data?.error?.message,
+typeof data?.error==="string"?data.error:null,
+data?.message,
+data?.detail
+].filter(Boolean);
+
+const text=String(data?.text||"").trim();
+if(
+text.startsWith("OpenAI API錯誤：")||
+text.startsWith("Gemini API錯誤：")||
+text.startsWith("Worker錯誤：")
+){
+candidates.unshift(text);
+}
+
+return candidates.length?String(candidates[0]):"";
+}
+
+async function fetchWithTimeout(url,options,timeoutMs){
+const controller=new AbortController();
+const timer=setTimeout(()=>controller.abort(),timeoutMs);
+try{
+return await fetch(url,{...options,signal:controller.signal});
+}finally{
+clearTimeout(timer);
+}
+}
+async function analyze(){
+if(state.busy)return;
+
+const topic=els.topic.value.trim();
+const userReply=els.reply.value.trim();
+
+if(!topic){
+alert("請輸入初始論述");
+els.topic.focus();
+return;
+}
+
+let resolved;
+try{
+resolved=resolveFrameworkForAnalysis();
+}catch(error){
+alert(error.message);
+return;
+}
+
+if(resolved.mode==="random"){
+els.selected.textContent="隨機選擇框架："+resolved.display;
+setActiveButton(resolved.display);
+}else if(resolved.mode==="all"){
+els.selected.textContent="使用框架：全部9個框架";
+clearActiveButtons();
+}else{
+els.selected.textContent="目前框架："+resolved.display;
+setActiveButton(resolved.display);
+}
+
+addMessage(
+"使用框架："+resolved.display+
+"\n\n原始論述：\n"+topic+
+(userReply?"\n\n我的回應：\n"+userReply:""),
+"user"
+);
+
+const modeLabel={
+manual:"手動單框架",
+random:"隨機單框架",
+all:"融合全部9個框架"
+}[resolved.mode];
+
+const prompt=`你是一個繁體中文的溝通框架訓練 AI。
+
+【任務】
+針對下方「初始論述」，依指定框架進行分析，並協助使用者練習實際溝通。
+
+【練習模式】
+${modeLabel}
+
+【使用框架】
+${resolved.promptText}
+
+【初始論述】
+${topic}
+
+【使用者目前回應】
+${userReply||"（尚未提供，請先示範一個可直接使用的回應）"}
+
+【輸出要求】
+1. 先指出本次實際使用的框架。
+2. 說明此框架如何解讀初始論述。
+3. 指出使用者應該注意的核心問題、假設、資訊缺口或溝通風險。
+4. 提供一段自然、可直接說出口的建議回應。
+5. 如果使用者已提供自己的回應，請具體指出優點與可改善處。
+6. 使用繁體中文，不要只給抽象理論。
+
+如果模式是「融合全部9個框架」，請在同一份回答中整合九個框架，不要要求前端分別呼叫九次 API。`;
+
+setBusy(true);
+const loading=addMessage(`AI 分析中…（第 1/${MAX_ATTEMPTS} 次）`,"ai");
+
+try{
+let finalAnswer="";
+
+for(let attempt=1;attempt<=MAX_ATTEMPTS;attempt++){
+
+if(attempt>1){
+loading.textContent=`第一次沒有收到有效內容，正在自動重試…（第 ${attempt}/${MAX_ATTEMPTS} 次）`;
+await sleep(RETRY_DELAY_MS);
+}else{
+loading.textContent=`AI 分析中…（第 ${attempt}/${MAX_ATTEMPTS} 次）`;
+}
+
+let response;
+
+try{
+response=await fetchWithTimeout(
+WORKER,
+{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+contents:[{
+role:"user",
+parts:[{text:prompt}]
+}]
+})
+},
+REQUEST_TIMEOUT_MS
+);
+}catch(fetchError){
+if(fetchError?.name==="AbortError"){
+if(attempt<MAX_ATTEMPTS){
+loading.textContent="AI 回應逾時，準備自動重試…";
+continue;
+}
+throw new Error("AI 回應逾時，請稍後再試");
+}
+
+if(attempt<MAX_ATTEMPTS){
+loading.textContent="連線暫時失敗，準備自動重試…";
+continue;
+}
+throw fetchError;
+}
+
+let rawText="";
+let data={};
+
+try{
+rawText=await response.text();
+data=rawText?JSON.parse(rawText):{};
+}catch(parseError){
+if(attempt<MAX_ATTEMPTS){
+loading.textContent="Worker 回傳格式異常，準備自動重試…";
+continue;
+}
+throw new Error(
+`Worker 回傳不是有效 JSON（HTTP ${response.status}）`+
+(rawText?`：${rawText.slice(0,250)}`:"")
+);
+}
+
+const apiError=getApiError(data);
+
+if(!response.ok){
+if(apiError)throw new Error(apiError);
+throw new Error(`HTTP ${response.status}`);
+}
+
+if(apiError){
+throw new Error(apiError);
+}
+
+const answer=extractAnswer(data);
+
+if(answer&&!isPlaceholderAnswer(answer)){
+finalAnswer=String(answer).trim();
+break;
+}
+
+console.warn(`第 ${attempt} 次請求沒有有效 AI 內容：`,data);
+
+if(attempt===MAX_ATTEMPTS){
+throw new Error("AI 連續兩次都沒有產生有效內容，請稍後再試");
+}
+}
+
+loading.className="msg ai";
+loading.textContent=finalAnswer;
+
+}catch(error){
+loading.className="msg error";
+loading.textContent="錯誤："+(error?.message||String(error));
+console.error("分析失敗：",error);
+}finally{
+setBusy(false);
+}
+}
+
+function init(){buildFrameworkButtons();els.mode.addEventListener("change",onModeChanged);els.sendBtn.addEventListener("click",analyze);state.randomFramework=pickRandomFramework();renderModeState();console.log("Framework Trainer V2.5.1 RETRY FINAL initialized");console.log("Worker:",WORKER)}
 init();
 </script>
 </body>
