@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>框架練習機器人 - AI V2.6 STRUCTURED FINAL</title>
+<title>框架練習機器人 - V2.8 教練模式</title>
 <style>
 *{box-sizing:border-box;font-family:"Microsoft JhengHei",Arial,sans-serif}
-:root{--primary:#4285f4;--border:#d9dde5;--muted:#6b7280}
+:root{--primary:#4285f4;--border:#d9dde5;--muted:#6b7280;--ok:#0f9d58;--warn:#b45309}
 html,body{margin:0;height:100%;background:#eef2ff;color:#222}
 body{overflow:hidden}
 .header{height:92px;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg,#3f80ee,#5e7fe9);color:#fff;font-size:30px;font-weight:700}
 .status{height:54px;padding:15px 20px;background:#fff;color:#07945b;border-bottom:1px solid #e5e7eb;font-size:16px}
 .app{height:calc(100vh - 146px);display:flex;background:#fff}
-.left{width:420px;min-width:340px;padding:18px 20px 30px;border-right:1px solid var(--border);overflow-y:auto}
+.left{width:430px;min-width:350px;padding:18px 20px 30px;border-right:1px solid var(--border);overflow-y:auto}
 .right{flex:1;min-width:0;display:flex;flex-direction:column}
 h3{margin:14px 0 10px;font-size:20px}
 textarea,select{width:100%;border:1px solid #cfd4dc;border-radius:10px;font-size:16px;padding:12px 14px;background:#fff}
@@ -21,34 +21,38 @@ textarea:focus,select:focus{outline:2px solid rgba(66,133,244,.18);border-color:
 .frameworks{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
 .fbtn{height:68px;border-radius:10px;background:#fff;font-size:17px;font-weight:700;cursor:pointer;border:2px solid;transition:.12s}
 .fbtn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.07)}
-.fbtn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+.fbtn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
 .fbtn[data-name="崩解"]{color:#ff3b3b;border-color:#ff3b3b}
-.fbtn[data-name="識別"]{color:#7c3aed;border-color:#7c3aed}
-.fbtn[data-name="確認"]{color:#f59e0b;border-color:#f59e0b}
 .fbtn[data-name="壓縮"]{color:#10b981;border-color:#10b981}
 .fbtn[data-name="分割"]{color:#06b6d4;border-color:#06b6d4}
-.fbtn[data-name="解構"]{color:#d946ef;border-color:#d946ef}
-.fbtn[data-name="架構"]{color:#ec4899;border-color:#ec4899}
-.fbtn[data-name="重構"]{color:#ef4444;border-color:#ef4444}
+.fbtn[data-name="重塑"]{color:#ec4899;border-color:#ec4899}
 .fbtn[data-name="植入"]{color:#65a30d;border-color:#65a30d}
 .fbtn.active{background:var(--primary)!important;color:#fff!important;border-color:var(--primary)!important}
-.selected{margin-top:14px;padding:12px 14px;background:#f3f4f6;border-radius:10px;line-height:1.5;min-height:46px}
+.card{margin-top:14px;padding:12px 14px;background:#f3f4f6;border-radius:10px;line-height:1.55}
+.progress{margin-top:10px;padding:12px 14px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;line-height:1.55;font-size:14px}
 .hint{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.5}
+.start{width:100%;height:52px;border:0;border-radius:10px;background:#1f6feb;color:#fff;font-size:17px;font-weight:700;cursor:pointer;margin-top:14px}
+.start:disabled{opacity:.55;cursor:not-allowed}
 .chat{flex:1;min-height:0;overflow-y:auto;padding:22px 28px;background:#fafafa}
 .empty{color:#9ca3af;text-align:center;margin-top:70px;font-size:17px}
 .msg{max-width:86%;white-space:pre-wrap;line-height:1.65;padding:14px 16px;margin:10px 0;border-radius:14px;overflow-wrap:anywhere}
 .msg.user{margin-left:auto;background:var(--primary);color:#fff}
-.msg.ai{margin-right:auto;background:#ececec;color:#111}
+.msg.coach{margin-right:auto;background:#ececec;color:#111}
+.msg.stage{margin-right:auto;background:#e8f0fe;color:#173b73;border:1px solid #c7dcff}
+.msg.hintmsg{margin-right:auto;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
+.msg.ok{margin-right:auto;background:#ecfdf3;color:#166534;border:1px solid #bbf7d0}
 .msg.error{margin-right:auto;background:#fee2e2;color:#991b1b}
-.bottom{border-top:1px solid #e5e7eb;background:#fff;padding:16px 20px;display:flex;gap:12px;align-items:stretch}
+.bottom{border-top:1px solid #e5e7eb;background:#fff;padding:16px 20px;display:flex;gap:10px;align-items:stretch}
 #reply{min-height:82px;resize:vertical}
-.send{width:150px;border:0;border-radius:10px;background:var(--primary);color:#fff;font-size:18px;font-weight:700;cursor:pointer}
-.send:disabled{opacity:.55;cursor:not-allowed}
-@media(max-width:820px){body{overflow:auto}.app{height:auto;min-height:calc(100vh - 146px);flex-direction:column}.left{width:100%;min-width:0;border-right:0;border-bottom:1px solid var(--border)}.right{min-height:600px}.bottom{flex-direction:column}.send{width:100%;height:56px}}
+.actionbtn{border:0;border-radius:10px;color:#fff;font-size:17px;font-weight:700;cursor:pointer;padding:0 20px;min-width:130px}
+#submitBtn{background:var(--primary)}
+#hintBtn{background:#f59e0b}
+.actionbtn:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:900px){body{overflow:auto}.app{height:auto;min-height:calc(100vh - 146px);flex-direction:column}.left{width:100%;min-width:0;border-right:0;border-bottom:1px solid var(--border)}.right{min-height:650px}.bottom{flex-direction:column}.actionbtn{width:100%;height:52px}}
 </style>
 </head>
 <body>
-<div class="header">🤖 框架練習機器人 - AI</div>
+<div class="header">🤖 框架練習機器人 - 教練模式</div>
 <div class="status">✓ 已連接安全 AI Gateway（Cloudflare Worker）</div>
 
 <div class="app">
@@ -59,21 +63,29 @@ textarea:focus,select:focus{outline:2px solid rgba(66,133,244,.18);border-color:
 <h3>練習模式</h3>
 <select id="mode">
 <option value="random">隨機一個框架</option>
-<option value="all">融合所有框架</option>
+<option value="all">依序練習全部5個框架</option>
 <option value="manual">手動選擇框架</option>
 </select>
 
-<h3>框架選擇</h3>
+<h3>框架選擇（5個）</h3>
 <div class="frameworks" id="buttons"></div>
-<div class="selected" id="selected"></div>
+
+<div class="card" id="selected"></div>
+<div class="progress" id="progress"></div>
 <div class="hint" id="modeHint"></div>
+
+<button class="start" id="startBtn" type="button">開始練習</button>
 </aside>
 
 <main class="right">
-<div class="chat" id="chat"><div class="empty" id="empty">請輸入初始論述並開始分析</div></div>
+<div class="chat" id="chat">
+<div class="empty" id="empty">先選模式並開始練習。AI 只會出題與判斷方向，不會先替你作答。</div>
+</div>
+
 <div class="bottom">
-<textarea id="reply" placeholder="輸入你的回應（可留空）"></textarea>
-<button class="send" id="sendBtn" type="button">開始分析</button>
+<textarea id="reply" placeholder="在這裡回答目前這一步…"></textarea>
+<button class="actionbtn" id="submitBtn" type="button" disabled>送出回答</button>
+<button class="actionbtn" id="hintBtn" type="button" disabled>我答不出來，給提示</button>
 </div>
 </main>
 </div>
@@ -83,137 +95,148 @@ textarea:focus,select:focus{outline:2px solid rgba(66,133,244,.18);border-color:
 
 const WORKER="https://gemini-framework.baquerodwornik432.workers.dev/";
 
-const FRAMEWORKS={
-"崩解":"拆解對方的前提、假設與隱含因果，找出可以被重新檢視的基礎。",
-"識別":"辨識真正核心問題、關鍵矛盾與對話焦點。",
-"確認":"確認事實、需求、限制、定義與雙方共同認知。",
-"壓縮":"把複雜論述濃縮成少數核心命題，降低溝通成本。",
-"分割":"把大型或混合問題拆成可個別處理的小問題。",
-"解構":"分析論述的組成、關係、因果、角色與權責結構。",
-"架構":"重新排列資訊與論點，建立更清楚的溝通結構。",
-"重構":"改變原本問題的看法或定義，建立新的理解與方案。",
-"植入":"在不破壞原對話的前提下，引入新的判準、資訊或思考方向。"
-};
+const COURSE={
+"崩解":{
+description:"辨識對方建立的語言框架、假設或前提，然後直接擊破。",
+steps:[
+{name:"框架識別",goal:"抓出對方話語背後的隱含框架、假設或等號關係。",question:"先不要反駁。你認為這句話背後隱藏了什麼框架、假設或『等號關係』？"},
+{name:"框架確認",goal:"確認自己是否正確理解對方的框架，避免拆錯方向。",question:"你會怎麼問對方，確認自己沒有抓錯他的框架？"},
+{name:"框架拆除",goal:"指出框架漏洞，讓原本的邏輯或等號關係失效。",question:"現在你會怎麼回，讓這個框架失效？"}
+]},
+"壓縮":{
+description:"把大量論點、資訊、角度濃縮在一瞬間拋出，主導對話節奏。",
+steps:[
+{name:"聚焦目標",goal:"先明確設定這次溝通真正要達成的核心目標。",question:"這次你真正想達成的核心目標是什麼？請先用一句話說清楚。"},
+{name:"多重切角",goal:"從多個角度建立支撐，而不是只靠單一理由。",question:"你可以從哪些 2～3 個不同角度支持這個目標？"},
+{name:"飽和攻擊",goal:"把前面的目標與切角整合成連續、密集、難以逐一拆解的回應。",question:"把前面整理的內容整合成一段你會直接說出口的回應。"}
+]},
+"分割":{
+description:"把問題切片，抽離不利部分，專注在能掌控與能證明的區塊。",
+steps:[
+{name:"價值確認",goal:"先承認或確認對方重視的價值，避免直接對撞。",question:"你會先確認對方重視的什麼價值？你會怎麼說？"},
+{name:"問題切割",goal:"把模糊或全面性的指控切成可確認、可處理的具體區塊。",question:"接下來你要把問題切成哪個具體區塊來談？"},
+{name:"信任重建",goal:"在切割問題後，提出下一步或證據，重新建立信任。",question:"最後你會怎麼把信任重新接回來？"}
+]},
+"重塑":{
+description:"重新定義問題本質，讓對方跳脫原本框架，進入新的理解方式。",
+steps:[
+{name:"解構",goal:"拆出問題元素，分清楚事實、誤解、情緒與真正問題。",question:"先拆開這句話：裡面有哪些事實、情緒、誤解或真正問題？"},
+{name:"架構",goal:"把問題重新整理成清楚的論述或對話結構。",question:"你會怎麼重新排列這些元素，讓對話變得清楚？"},
+{name:"重構",goal:"重新定義問題，帶入新的理解方式與回應方向。",question:"現在你要把原本的問題重構成什麼新的理解方式？你會怎麼說？"}
+]},
+"植入":{
+description:"透過鋪墊、故事與引導語言，把新的觀點種進對方思維。",
+steps:[
+{name:"認知鋪墊",goal:"先建立共同經驗或共同語境，降低對新觀點的抵抗。",question:"你會先用什麼共同經驗、故事或情境做鋪墊？"},
+{name:"概念灌注",goal:"把新的觀點自然放進對方理解中，不用強迫式說服。",question:"接下來你要植入的核心概念是什麼？你會怎麼自然地說出來？"},
+{name:"無壓收尾",goal:"留下選擇空間與正向印象，不強迫對方立刻接受。",question:"最後你會怎麼收尾，讓對方有選擇空間但保留這個觀點？"}
+]}};
 
-const state={manualFramework:null,randomFramework:null,busy:false};
-const INITIAL_RETRY_DELAY_MS=1500;
-const MAX_RETRY_DELAY_MS=15000;
-const REQUEST_TIMEOUT_MS=60000;
+const FRAMEWORK_ORDER=["崩解","壓縮","分割","重塑","植入"];
+
+const state={
+active:false,
+busy:false,
+manualFramework:null,
+queue:[],
+frameworkIndex:0,
+stepIndex:0,
+attempts:0
+};
 
 const els={
 topic:document.getElementById("topic"),
 mode:document.getElementById("mode"),
 buttons:document.getElementById("buttons"),
 selected:document.getElementById("selected"),
+progress:document.getElementById("progress"),
 modeHint:document.getElementById("modeHint"),
+startBtn:document.getElementById("startBtn"),
 chat:document.getElementById("chat"),
 empty:document.getElementById("empty"),
 reply:document.getElementById("reply"),
-sendBtn:document.getElementById("sendBtn")
+submitBtn:document.getElementById("submitBtn"),
+hintBtn:document.getElementById("hintBtn")
 };
 
-function frameworkNames(){return Object.keys(FRAMEWORKS)}
-function frameworkObjects(names=frameworkNames()){
-return names.map(name=>({name,description:FRAMEWORKS[name]}));
-}
 function pickRandomFramework(){
-const names=frameworkNames();
-return names[Math.floor(Math.random()*names.length)];
+return FRAMEWORK_ORDER[Math.floor(Math.random()*FRAMEWORK_ORDER.length)];
 }
+
 function clearActiveButtons(){
 document.querySelectorAll(".fbtn").forEach(btn=>btn.classList.remove("active"));
 }
+
 function setActiveButton(name){
 clearActiveButtons();
 document.querySelectorAll(".fbtn").forEach(btn=>{
 if(btn.dataset.name===name)btn.classList.add("active");
 });
 }
+
 function buildFrameworkButtons(){
-for(const name of frameworkNames()){
+for(const name of FRAMEWORK_ORDER){
 const btn=document.createElement("button");
 btn.type="button";
 btn.className="fbtn";
 btn.dataset.name=name;
 btn.textContent=name;
 btn.addEventListener("click",()=>{
+if(state.active)return;
 state.manualFramework=name;
 els.mode.value="manual";
-renderModeState();
+renderSelection();
 });
 els.buttons.appendChild(btn);
 }
 }
-function renderModeState(){
+
+function renderSelection(){
 const mode=els.mode.value;
 
 if(mode==="manual"){
-state.randomFramework=null;
 if(state.manualFramework){
 setActiveButton(state.manualFramework);
 els.selected.textContent="目前框架："+state.manualFramework;
-els.modeHint.textContent="手動模式：只使用你點選的框架。";
+els.modeHint.textContent="手動模式：只練這一個框架的三個步驟。";
 }else{
 clearActiveButtons();
 els.selected.textContent="手動模式：尚未選擇框架";
-els.modeHint.textContent="請從上方 9 個框架中選擇一個。";
+els.modeHint.textContent="請從 5 個框架中選 1 個。";
 }
-return;
-}
-
-if(mode==="random"){
-if(!state.randomFramework)state.randomFramework=pickRandomFramework();
-setActiveButton(state.randomFramework);
-els.selected.textContent="隨機選擇框架："+state.randomFramework;
-els.modeHint.textContent="隨機模式：已自動選定框架，不需要手動點選。";
-return;
-}
-
-if(mode==="all"){
-state.randomFramework=null;
+}else if(mode==="random"){
 clearActiveButtons();
-els.selected.textContent="使用框架：全部9個框架";
-els.modeHint.textContent="融合模式：會把 9 個框架以結構化資料一次送給 AI，不會當成單一框架處理。";
-}
-}
-function onModeChanged(){
-state.randomFramework=els.mode.value==="random"?pickRandomFramework():null;
-renderModeState();
-}
-
-function resolveAnalysis(){
-const mode=els.mode.value;
-
-if(mode==="manual"){
-if(!state.manualFramework)throw new Error("請選擇框架");
-return{
-mode:"manual",
-display:state.manualFramework,
-frameworks:frameworkObjects([state.manualFramework])
-};
+els.selected.textContent="隨機模式：開始時才抽框架";
+els.modeHint.textContent="AI 不會先給答案，只會依步驟出題與判斷你的方向。";
+}else{
+clearActiveButtons();
+els.selected.textContent="全部模式：依序練習 5 個框架";
+els.modeHint.textContent="順序：崩解 → 壓縮 → 分割 → 重塑 → 植入；每個框架各自完成三個步驟。";
 }
 
-if(mode==="random"){
-if(!state.randomFramework)state.randomFramework=pickRandomFramework();
-return{
-mode:"random",
-display:state.randomFramework,
-frameworks:frameworkObjects([state.randomFramework])
-};
+renderProgress();
 }
 
-if(mode==="all"){
-return{
-mode:"all",
-display:"全部9個框架",
-frameworks:frameworkObjects()
-};
+function renderProgress(){
+if(!state.active){
+els.progress.textContent="尚未開始練習。";
+return;
+}
+const fw=currentFramework();
+const step=currentStep();
+els.progress.textContent=
+`進度：框架 ${state.frameworkIndex+1}/${state.queue.length}｜${fw}｜步驟 ${state.stepIndex+1}/${COURSE[fw].steps.length}：${step.name}`;
 }
 
-throw new Error("未知的練習模式");
+function currentFramework(){
+return state.queue[state.frameworkIndex];
 }
 
-function addMessage(text,type="ai"){
+function currentStep(){
+return COURSE[currentFramework()].steps[state.stepIndex];
+}
+
+function addMessage(text,type="coach"){
 if(els.empty){els.empty.remove();els.empty=null}
 const div=document.createElement("div");
 div.className="msg "+type;
@@ -225,196 +248,227 @@ return div;
 
 function setBusy(busy){
 state.busy=busy;
-els.sendBtn.disabled=busy;
-els.sendBtn.textContent=busy?"分析中…":"開始分析";
-els.mode.disabled=busy;
-document.querySelectorAll(".fbtn").forEach(btn=>btn.disabled=busy);
+els.submitBtn.disabled=!state.active||busy;
+els.hintBtn.disabled=!state.active||busy;
+els.startBtn.disabled=busy;
+els.reply.disabled=!state.active||busy;
 }
 
-function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
-
-async function fetchWithTimeout(url,options,timeoutMs){
-const controller=new AbortController();
-const timer=setTimeout(()=>controller.abort(),timeoutMs);
-try{
-return await fetch(url,{...options,signal:controller.signal});
-}finally{
-clearTimeout(timer);
-}
+function lockSetup(lock){
+els.mode.disabled=lock;
+els.topic.disabled=lock;
+document.querySelectorAll(".fbtn").forEach(btn=>btn.disabled=lock);
 }
 
-function extractAnswer(data){
-return String(data?.text||"").trim();
+function announceCurrentStep(){
+const fw=currentFramework();
+const step=currentStep();
+
+setActiveButton(fw);
+els.selected.textContent=`目前框架：${fw}`;
+renderProgress();
+
+addMessage(
+`【${fw}｜${step.name}】\n${step.question}`,
+"stage"
+);
+els.reply.value="";
+els.reply.focus();
 }
 
-function isPlaceholderAnswer(text){
-const value=String(text||"").trim();
-if(!value)return true;
-const placeholders=[
-"AI沒有回覆","AI沒有產生回覆","Gemini沒有回覆",
-"Gemini沒有產生內容","GPT沒有回覆","無回覆"
-];
-return placeholders.some(item=>value===item||value.includes(item));
+function finishPractice(){
+state.active=false;
+lockSetup(false);
+setBusy(false);
+els.submitBtn.disabled=true;
+els.hintBtn.disabled=true;
+els.reply.disabled=true;
+clearActiveButtons();
+els.selected.textContent="本輪練習完成";
+els.progress.textContent="已完成本輪練習。";
+addMessage("本輪練習完成。你可以修改初始論述或模式，再開始下一輪。","ok");
 }
 
-function getApiError(data){
-const text=String(data?.text||"").trim();
-const candidates=[
-data?.error?.message,
-typeof data?.error==="string"?data.error:null,
-text.startsWith("OpenAI API錯誤：")?text:null,
-text.startsWith("Gemini API錯誤：")?text:null,
-text.startsWith("Worker錯誤：")?text:null
-].filter(Boolean);
-return candidates.length?String(candidates[0]):"";
+function advanceStep(){
+const fw=currentFramework();
+
+if(state.stepIndex+1<COURSE[fw].steps.length){
+state.stepIndex+=1;
+state.attempts=0;
+announceCurrentStep();
+return;
 }
 
-function isFatalApiError(message,status){
-const text=String(message||"").toLowerCase();
-const fatalHints=[
-"no credits remaining","insufficient_quota","prepayment credits are depleted",
-"invalid api key","incorrect api key","authentication","unauthorized",
-"user location is not supported","permission denied"
-];
-if(status===401||status===403)return true;
-return fatalHints.some(hint=>text.includes(hint));
+addMessage(`「${fw}」三個步驟完成。`,"ok");
+
+if(state.frameworkIndex+1<state.queue.length){
+state.frameworkIndex+=1;
+state.stepIndex=0;
+state.attempts=0;
+addMessage(`進入下一個框架：${currentFramework()}`,"stage");
+announceCurrentStep();
+return;
 }
 
-function retryMessage(attempt,delay,reason){
-const seconds=Math.max(1,Math.round(delay/1000));
-return `AI 尚未產生有效回答。\n第 ${attempt} 次尚未成功，${seconds} 秒後自動重試…${reason?`\n原因：${reason}`:""}`;
+finishPractice();
 }
 
-async function analyze(){
+function startPractice(){
 if(state.busy)return;
 
 const topic=els.topic.value.trim();
-const userReply=els.reply.value.trim();
-
 if(!topic){
-alert("請輸入初始論述");
+alert("請先輸入初始論述");
 els.topic.focus();
 return;
 }
 
-let resolved;
-try{
-resolved=resolveAnalysis();
-}catch(error){
-alert(error.message);
+const mode=els.mode.value;
+
+if(mode==="manual"&&!state.manualFramework){
+alert("請先選擇框架");
 return;
 }
 
-if(resolved.mode==="all"){
-els.selected.textContent="使用框架：全部9個框架";
-clearActiveButtons();
+if(mode==="manual"){
+state.queue=[state.manualFramework];
+}else if(mode==="random"){
+const picked=pickRandomFramework();
+state.queue=[picked];
+addMessage(`本輪隨機框架：${picked}`,"coach");
 }else{
-els.selected.textContent=(resolved.mode==="random"?"隨機選擇框架：":"目前框架：")+resolved.display;
-setActiveButton(resolved.display);
+state.queue=[...FRAMEWORK_ORDER];
 }
 
-addMessage(
-"使用框架："+resolved.display+
-"\n\n原始論述：\n"+topic+
-(userReply?"\n\n我的回應：\n"+userReply:""),
-"user"
-);
+state.frameworkIndex=0;
+state.stepIndex=0;
+state.attempts=0;
+state.active=true;
 
-/*
-  V2.6 重要修正：
-  不再把「全部9框架」硬塞成一大段 prompt。
-  改成送結構化 JSON，讓 Worker 根據 mode 明確建立提示詞。
-*/
-const payload={
-action:"framework_analysis",
-mode:resolved.mode,
-topic,
-userReply,
-frameworks:resolved.frameworks
-};
+lockSetup(true);
+els.startBtn.disabled=true;
+els.reply.disabled=false;
+els.submitBtn.disabled=false;
+els.hintBtn.disabled=false;
 
-setBusy(true);
-const loading=addMessage("AI 分析中，正在等待有效回答…","ai");
+addMessage(`初始論述：\n${topic}`,"user");
+announceCurrentStep();
+}
 
-try{
-let attempt=0;
-let delay=INITIAL_RETRY_DELAY_MS;
-
-while(true){
-attempt+=1;
-
-let response;
-try{
-response=await fetchWithTimeout(
-WORKER,
-{
+async function callWorker(payload){
+const response=await fetch(WORKER,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify(payload)
-},
-REQUEST_TIMEOUT_MS
-);
-}catch(error){
-const reason=error?.name==="AbortError"?"請求逾時":(error?.message||"連線失敗");
-loading.textContent=retryMessage(attempt,delay,reason);
-await sleep(delay);
-delay=Math.min(delay*2,MAX_RETRY_DELAY_MS);
-continue;
-}
+});
 
-let raw="";
+const raw=await response.text();
 let data={};
+
 try{
-raw=await response.text();
 data=raw?JSON.parse(raw):{};
-}catch(error){
-loading.textContent=retryMessage(attempt,delay,`Worker 回傳不是有效 JSON（HTTP ${response.status}）`);
-await sleep(delay);
-delay=Math.min(delay*2,MAX_RETRY_DELAY_MS);
-continue;
+}catch{
+throw new Error(`Worker 回傳不是有效 JSON（HTTP ${response.status}）`);
 }
 
-const apiError=getApiError(data);
-
-if(!response.ok||apiError){
-const reason=apiError||`HTTP ${response.status}`;
-if(isFatalApiError(reason,response.status)){
-throw new Error(reason);
-}
-loading.textContent=retryMessage(attempt,delay,reason);
-await sleep(delay);
-delay=Math.min(delay*2,MAX_RETRY_DELAY_MS);
-continue;
+if(!response.ok){
+throw new Error(data?.error||`HTTP ${response.status}`);
 }
 
-const answer=extractAnswer(data);
-if(answer&&!isPlaceholderAnswer(answer)){
-loading.className="msg ai";
-loading.textContent=answer;
-break;
+return data;
 }
 
-loading.textContent=retryMessage(attempt,delay,"AI 回傳空內容");
-await sleep(delay);
-delay=Math.min(delay*2,MAX_RETRY_DELAY_MS);
+async function submitAnswer(){
+if(!state.active||state.busy)return;
+
+const answer=els.reply.value.trim();
+if(!answer){
+alert("請先回答目前這一步；如果答不出來，可以按「我答不出來，給提示」。");
+return;
 }
+
+const fw=currentFramework();
+const step=currentStep();
+state.attempts+=1;
+
+addMessage(answer,"user");
+const loading=addMessage("AI 正在判斷你的方向…","coach");
+setBusy(true);
+
+try{
+const data=await callWorker({
+action:"evaluate_step",
+topic:els.topic.value.trim(),
+framework:fw,
+step:step.name,
+userAnswer:answer,
+attempt:state.attempts
+});
+
+if(data.verdict==="pass"){
+loading.className="msg ok";
+loading.textContent=data.feedback||"方向正確。";
+setBusy(false);
+advanceStep();
+return;
+}
+
+loading.className="msg hintmsg";
+loading.textContent=
+(data.feedback||"方向需要調整。")+
+(data.hint?`\n提示：${data.hint}`:"");
+
+setBusy(false);
+els.reply.value="";
+els.reply.focus();
 
 }catch(error){
 loading.className="msg error";
-loading.textContent="無法繼續請求："+(error?.message||String(error));
-console.error(error);
-}finally{
+loading.textContent="評估失敗："+error.message;
+setBusy(false);
+}
+}
+
+async function requestHint(){
+if(!state.active||state.busy)return;
+
+const fw=currentFramework();
+const step=currentStep();
+
+const loading=addMessage("正在準備一個不直接破題的提示…","coach");
+setBusy(true);
+
+try{
+const data=await callWorker({
+action:"give_hint",
+topic:els.topic.value.trim(),
+framework:fw,
+step:step.name,
+previousAnswer:els.reply.value.trim()
+});
+
+loading.className="msg hintmsg";
+loading.textContent=`提示：${data.hint||"先回到這一步的目的，再想想你要辨識／確認／處理的是什麼。"}`;
+
+setBusy(false);
+els.reply.focus();
+
+}catch(error){
+loading.className="msg error";
+loading.textContent="取得提示失敗："+error.message;
 setBusy(false);
 }
 }
 
 function init(){
 buildFrameworkButtons();
-els.mode.addEventListener("change",onModeChanged);
-els.sendBtn.addEventListener("click",analyze);
-state.randomFramework=pickRandomFramework();
-renderModeState();
-console.log("Framework Trainer V2.6 STRUCTURED FINAL initialized");
+els.mode.addEventListener("change",renderSelection);
+els.startBtn.addEventListener("click",startPractice);
+els.submitBtn.addEventListener("click",submitAnswer);
+els.hintBtn.addEventListener("click",requestHint);
+renderSelection();
+els.reply.disabled=true;
+console.log("Framework Trainer V2.8 COACH MODE initialized");
 }
 init();
 </script>
