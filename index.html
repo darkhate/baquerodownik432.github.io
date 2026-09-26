@@ -1,141 +1,84 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>框架練習機器人 Gemini AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>框架練習機器人 - AI V2.5 FINAL</title>
 <style>
-body{font-family:Arial,"Microsoft JhengHei";margin:0}
-.header{background:#4285f4;color:#fff;padding:20px;text-align:center;font-size:28px}
-.app{display:flex;height:calc(100vh - 80px)}
-.left{width:400px;padding:20px;overflow:auto;border-right:1px solid #ddd}
-.right{flex:1;padding:20px}
-textarea,select{width:100%;padding:12px;font-size:16px}
-button{width:45%;height:70px;margin:5px;border-radius:12px;background:#fff;font-size:18px;font-weight:bold}
-.start{background:#4285f4;color:white}
-.msg{padding:15px;margin:10px;border-radius:12px}
-.user{background:#4285f4;color:white}
-.ai{background:#eee}
-.info{padding:12px;background:#f5f5f5;margin-top:10px}
+*{box-sizing:border-box;font-family:"Microsoft JhengHei",Arial,sans-serif}
+:root{--primary:#4285f4;--border:#d9dde5;--muted:#6b7280}
+html,body{margin:0;height:100%;background:#eef2ff;color:#222}body{overflow:hidden}
+.header{height:92px;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg,#3f80ee,#5e7fe9);color:#fff;font-size:30px;font-weight:700}
+.status{height:54px;padding:15px 20px;background:#fff;color:#07945b;border-bottom:1px solid #e5e7eb;font-size:16px}
+.app{height:calc(100vh - 146px);display:flex;background:#fff}.left{width:420px;min-width:340px;padding:18px 20px 30px;border-right:1px solid var(--border);overflow-y:auto}.right{flex:1;min-width:0;display:flex;flex-direction:column}
+h3{margin:14px 0 10px;font-size:20px}textarea,select{width:100%;border:1px solid #cfd4dc;border-radius:10px;font-size:16px;padding:12px 14px;background:#fff}textarea:focus,select:focus{outline:2px solid rgba(66,133,244,.18);border-color:var(--primary)}#topic{min-height:110px;resize:vertical}
+.frameworks{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}.fbtn{height:68px;border-radius:10px;background:#fff;font-size:17px;font-weight:700;cursor:pointer;border:2px solid;transition:.12s}.fbtn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.07)}
+.fbtn[data-name="崩解"]{color:#ff3b3b;border-color:#ff3b3b}.fbtn[data-name="識別"]{color:#7c3aed;border-color:#7c3aed}.fbtn[data-name="確認"]{color:#f59e0b;border-color:#f59e0b}.fbtn[data-name="壓縮"]{color:#10b981;border-color:#10b981}.fbtn[data-name="分割"]{color:#06b6d4;border-color:#06b6d4}.fbtn[data-name="解構"]{color:#d946ef;border-color:#d946ef}.fbtn[data-name="架構"]{color:#ec4899;border-color:#ec4899}.fbtn[data-name="重構"]{color:#ef4444;border-color:#ef4444}.fbtn[data-name="植入"]{color:#65a30d;border-color:#65a30d}.fbtn.active{background:var(--primary)!important;color:#fff!important;border-color:var(--primary)!important}
+.selected{margin-top:14px;padding:12px 14px;background:#f3f4f6;border-radius:10px;line-height:1.5;min-height:46px}.hint{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.5}
+.chat{flex:1;min-height:0;overflow-y:auto;padding:22px 28px;background:#fafafa}.empty{color:#9ca3af;text-align:center;margin-top:70px;font-size:17px}.msg{max-width:86%;white-space:pre-wrap;line-height:1.65;padding:14px 16px;margin:10px 0;border-radius:14px;overflow-wrap:anywhere}.msg.user{margin-left:auto;background:var(--primary);color:#fff}.msg.ai{margin-right:auto;background:#ececec;color:#111}.msg.error{margin-right:auto;background:#fee2e2;color:#991b1b}
+.bottom{border-top:1px solid #e5e7eb;background:#fff;padding:16px 20px;display:flex;gap:12px;align-items:stretch}#reply{min-height:82px;resize:vertical}.send{width:150px;border:0;border-radius:10px;background:var(--primary);color:#fff;font-size:18px;font-weight:700;cursor:pointer}.send:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:820px){body{overflow:auto}.app{height:auto;min-height:calc(100vh - 146px);flex-direction:column}.left{width:100%;min-width:0;border-right:0;border-bottom:1px solid var(--border)}.right{min-height:600px}.bottom{flex-direction:column}.send{width:100%;height:56px}}
 </style>
 </head>
 <body>
-<div class="header">🤖 框架練習機器人 - Gemini AI</div>
-
+<div class="header">🤖 框架練習機器人 - AI</div>
+<div class="status">✓ 已連接安全 AI Gateway（Cloudflare Worker）</div>
 <div class="app">
-<div class="left">
-<h3>初始論述</h3>
-<textarea id="input" rows="5"></textarea>
-
-<h3>練習模式</h3>
-<select id="mode" onchange="changeMode()">
-<option value="random">隨機一個框架</option>
-<option value="all">融合所有框架</option>
-<option value="manual">手動選擇框架</option>
-</select>
-
-<h3>框架選擇</h3>
-<div id="buttons"></div>
-
-<div class="info" id="selected">尚未選擇框架</div>
+  <aside class="left">
+    <h3>初始論述</h3>
+    <textarea id="topic" placeholder="輸入對方說的話…"></textarea>
+    <h3>練習模式</h3>
+    <select id="mode">
+      <option value="random">隨機一個框架</option>
+      <option value="all">融合所有框架</option>
+      <option value="manual">手動選擇框架</option>
+    </select>
+    <h3>框架選擇</h3>
+    <div class="frameworks" id="buttons"></div>
+    <div class="selected" id="selected"></div>
+    <div class="hint" id="modeHint"></div>
+  </aside>
+  <main class="right">
+    <div class="chat" id="chat"><div class="empty" id="empty">請輸入初始論述並開始分析</div></div>
+    <div class="bottom">
+      <textarea id="reply" placeholder="輸入你的回應（可留空）"></textarea>
+      <button class="send" id="sendBtn" type="button">開始分析</button>
+    </div>
+  </main>
 </div>
-
-<div class="right">
-<div id="chat"></div>
-<textarea id="reply" rows="3" placeholder="輸入你的回應"></textarea>
-<br>
-<button class="start" onclick="analyze()">開始分析</button>
-</div>
-</div>
-
 <script>
+"use strict";
 const WORKER="https://gemini-framework.baquerodwornik432.workers.dev/";
-
 const FRAMEWORKS={
-"崩解":"拆解對方假設",
-"識別":"找出核心問題",
-"確認":"確認事實與需求",
-"壓縮":"濃縮核心重點",
-"分割":"拆分複雜問題",
-"解構":"分析結構",
-"架構":"重新組織",
-"重構":"建立新觀點",
-"植入":"加入新的思考"
+"崩解":"拆解對方的前提、假設與隱含因果，找出可以被重新檢視的基礎。",
+"識別":"辨識真正核心問題、關鍵矛盾與對話焦點。",
+"確認":"確認事實、需求、限制、定義與雙方共同認知。",
+"壓縮":"把複雜論述濃縮成少數核心命題，降低溝通成本。",
+"分割":"把大型或混合問題拆成可個別處理的小問題。",
+"解構":"分析論述的組成、關係、因果、角色與權責結構。",
+"架構":"重新排列資訊與論點，建立更清楚的溝通結構。",
+"重構":"改變原本問題的看法或定義，建立新的理解與方案。",
+"植入":"在不破壞原對話的前提下，引入新的判準、資訊或思考方向。"
 };
-
-let current=null;
-
-Object.keys(FRAMEWORKS).forEach(k=>{
- let b=document.createElement("button");
- b.innerText=k;
- b.onclick=()=>{
-  current=k;
-  document.getElementById("selected").innerText="目前框架："+k;
- };
- document.getElementById("buttons").appendChild(b);
-});
-
-function changeMode(){
- let m=document.getElementById("mode").value;
- if(m==="random"){
-  let a=Object.keys(FRAMEWORKS);
-  current=a[Math.floor(Math.random()*a.length)];
-  document.getElementById("selected").innerText="隨機選擇框架："+current;
- }
- else if(m==="all"){
-  current="全部9個框架";
-  document.getElementById("selected").innerText="使用框架：全部9個框架";
- }
- else{
-  current=null;
-  document.getElementById("selected").innerText="尚未選擇框架";
- }
-}
-
-function add(t,c){
- let d=document.createElement("div");
- d.className="msg "+c;
- d.innerText=t;
- document.getElementById("chat").appendChild(d);
-}
-
-async function analyze(){
-
-let input=document.getElementById("input").value.trim();
-
-if(!input){alert("請輸入初始論述");return;}
-if(!current){alert("請選擇框架");return;}
-
-add("使用框架："+current,"user");
-
-let prompt=`你是溝通框架訓練AI。
-初始論述：
-${input}
-使用框架：
-${current}
-請分析此論述。`;
-
-try{
-
-let res=await fetch(WORKER,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-contents:[{
-role:"user",
-parts:[{text:prompt}]
-}]
-})
-});
-
-let data=await res.json();
-
-add(data.text || data.error || "AI沒有回覆","ai");
-
-}catch(e){
-add("錯誤："+e.message,"ai");
-}
-
-}
+const state={manualFramework:null,randomFramework:null,busy:false};
+const els={topic:document.getElementById("topic"),mode:document.getElementById("mode"),buttons:document.getElementById("buttons"),selected:document.getElementById("selected"),modeHint:document.getElementById("modeHint"),chat:document.getElementById("chat"),empty:document.getElementById("empty"),reply:document.getElementById("reply"),sendBtn:document.getElementById("sendBtn")};
+function frameworkNames(){return Object.keys(FRAMEWORKS)}
+function pickRandomFramework(){const names=frameworkNames();return names[Math.floor(Math.random()*names.length)]}
+function clearActiveButtons(){document.querySelectorAll(".fbtn").forEach(btn=>btn.classList.remove("active"))}
+function setActiveButton(name){clearActiveButtons();document.querySelectorAll(".fbtn").forEach(btn=>{if(btn.dataset.name===name)btn.classList.add("active")})}
+function buildFrameworkButtons(){for(const name of frameworkNames()){const btn=document.createElement("button");btn.type="button";btn.className="fbtn";btn.dataset.name=name;btn.textContent=name;btn.addEventListener("click",()=>{state.manualFramework=name;els.mode.value="manual";renderModeState()});els.buttons.appendChild(btn)}}
+function renderModeState(){const mode=els.mode.value;if(mode==="manual"){state.randomFramework=null;if(state.manualFramework){setActiveButton(state.manualFramework);els.selected.textContent="目前框架："+state.manualFramework;els.modeHint.textContent="手動模式：開始分析時使用你點選的框架。"}else{clearActiveButtons();els.selected.textContent="手動模式：尚未選擇框架";els.modeHint.textContent="請從上方 9 個框架中選擇一個。"}return}if(mode==="random"){if(!state.randomFramework)state.randomFramework=pickRandomFramework();setActiveButton(state.randomFramework);els.selected.textContent="隨機選擇框架："+state.randomFramework;els.modeHint.textContent="此框架已選定；切換離開再回到隨機模式時會重新抽取。";return}if(mode==="all"){state.randomFramework=null;clearActiveButtons();els.selected.textContent="使用框架：全部9個框架";els.modeHint.textContent="融合模式只送出 1 次 API 請求，由 AI 在同一次回答中整合全部 9 個框架。"}}
+function onModeChanged(){const mode=els.mode.value;state.randomFramework=mode==="random"?pickRandomFramework():null;renderModeState()}
+function resolveFrameworkForAnalysis(){const mode=els.mode.value;if(mode==="manual"){if(!state.manualFramework)throw new Error("請選擇框架");return{mode,display:state.manualFramework,promptText:`${state.manualFramework}：${FRAMEWORKS[state.manualFramework]}`}}if(mode==="random"){if(!state.randomFramework){state.randomFramework=pickRandomFramework();renderModeState()}return{mode,display:state.randomFramework,promptText:`${state.randomFramework}：${FRAMEWORKS[state.randomFramework]}`}}if(mode==="all"){return{mode,display:"全部9個框架",promptText:frameworkNames().map(name=>`${name}：${FRAMEWORKS[name]}`).join("\n")}}throw new Error("未知的練習模式")}
+function addMessage(text,type="ai"){if(els.empty){els.empty.remove();els.empty=null}const div=document.createElement("div");div.className="msg "+type;div.textContent=text;els.chat.appendChild(div);els.chat.scrollTop=els.chat.scrollHeight;return div}
+function setBusy(busy){state.busy=busy;els.sendBtn.disabled=busy;els.sendBtn.textContent=busy?"分析中…":"開始分析"}
+async function analyze(){if(state.busy)return;const topic=els.topic.value.trim();const userReply=els.reply.value.trim();if(!topic){alert("請輸入初始論述");els.topic.focus();return}let resolved;try{resolved=resolveFrameworkForAnalysis()}catch(error){alert(error.message);return}if(resolved.mode==="random"){els.selected.textContent="隨機選擇框架："+resolved.display;setActiveButton(resolved.display)}else if(resolved.mode==="all"){els.selected.textContent="使用框架：全部9個框架";clearActiveButtons()}else{els.selected.textContent="目前框架："+resolved.display;setActiveButton(resolved.display)}
+addMessage("使用框架："+resolved.display+"\n\n原始論述：\n"+topic+(userReply?"\n\n我的回應：\n"+userReply:""),"user");
+const modeLabel={manual:"手動單框架",random:"隨機單框架",all:"融合全部9個框架"}[resolved.mode];
+const prompt=`你是一個繁體中文的溝通框架訓練 AI。\n\n【任務】\n針對下方「初始論述」，依指定框架進行分析，並協助使用者練習實際溝通。\n\n【練習模式】\n${modeLabel}\n\n【使用框架】\n${resolved.promptText}\n\n【初始論述】\n${topic}\n\n【使用者目前回應】\n${userReply||"（尚未提供，請先示範一個可直接使用的回應）"}\n\n【輸出要求】\n1. 先指出本次實際使用的框架。\n2. 說明此框架如何解讀初始論述。\n3. 指出使用者應該注意的核心問題、假設、資訊缺口或溝通風險。\n4. 提供一段自然、可直接說出口的建議回應。\n5. 如果使用者已提供自己的回應，請具體指出優點與可改善處。\n6. 使用繁體中文，不要只給抽象理論。\n\n如果模式是「融合全部9個框架」，請在同一份回答中整合九個框架，不要要求前端分別呼叫九次 API。`;
+setBusy(true);const loading=addMessage("AI 分析中…","ai");try{const response=await fetch(WORKER,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}]})});let data=null;let rawText="";try{rawText=await response.text();data=rawText?JSON.parse(rawText):{}}catch(parseError){throw new Error(`Worker 回傳不是有效 JSON（HTTP ${response.status}）`+(rawText?`：${rawText.slice(0,250)}`:""))}if(!response.ok){const detail=data?.text||data?.error?.message||data?.error||`HTTP ${response.status}`;throw new Error(String(detail))}const answer=data?.text||data?.choices?.[0]?.message?.content||data?.candidates?.[0]?.content?.parts?.[0]?.text;if(!answer)throw new Error("Worker 已回應，但找不到 AI 文字內容。請查看 Network → Response。");loading.textContent=answer}catch(error){loading.className="msg error";loading.textContent="錯誤："+error.message;console.error("分析失敗：",error)}finally{setBusy(false)}}
+function init(){buildFrameworkButtons();els.mode.addEventListener("change",onModeChanged);els.sendBtn.addEventListener("click",analyze);state.randomFramework=pickRandomFramework();renderModeState();console.log("Framework Trainer V2.5 FINAL initialized");console.log("Worker:",WORKER)}
+init();
 </script>
 </body>
 </html>
